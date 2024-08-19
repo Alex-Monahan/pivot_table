@@ -28,7 +28,16 @@ namespace duckdb {
 //      If you do not have parameters, simplify to {nullptr}
 // Add the text of your SQL macro as a raw string with the format R"( select 42 )"
 static DefaultMacro dynamic_sql_examples_macros[] = {
-    {DEFAULT_SCHEMA, "times_two", {"x", nullptr}, R"(x*2)"},
+    // nq = no quotes
+    // sq = single quotes
+    // dq = double quotes
+    {DEFAULT_SCHEMA, "sq", {"my_varchar", nullptr}, R"( ''''||replace(my_varchar,'''', '''''')||'''' )"},
+    {DEFAULT_SCHEMA, "dq", {"my_varchar", nullptr}, R"( '"'||replace(my_varchar,'"', '""')||'"' )"},
+    {DEFAULT_SCHEMA, "sq_list", {"my_list", nullptr}, R"( list_transform(my_list, (i) -> sq(i)) )"},
+    {DEFAULT_SCHEMA, "dq_list", {"my_list", nullptr}, R"( list_transform(my_list, (i) -> dq(i)) )"},
+    {DEFAULT_SCHEMA, "nq_concat", {"my_list", "separator", nullptr}, R"( list_reduce(my_list, (x, y) -> x || separator || y) )"},
+    {DEFAULT_SCHEMA, "sq_concat", {"my_list", "separator", nullptr}, R"( list_reduce(sq_list(my_list), (x, y) -> x || separator || y) )"},
+    {DEFAULT_SCHEMA, "dq_concat", {"my_list", "separator", nullptr}, R"( list_reduce(dq_list(my_list), (x, y) -> x || separator || y) )"},
     {nullptr, nullptr, {nullptr}, nullptr}};
 
 
