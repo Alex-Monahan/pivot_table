@@ -11,6 +11,9 @@
 // OpenSSL linked through vcpkg
 #include <openssl/opensslv.h>
 
+#include "default_functions.hpp"
+#include "default_table_functions.hpp"
+
 namespace duckdb {
 
 inline void PivotTableScalarFun(DataChunk &args, ExpressionState &state, Vector &result) {
