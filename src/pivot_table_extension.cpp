@@ -16,6 +16,43 @@
 
 namespace duckdb {
 
+
+// To add a new scalar SQL macro, add a new macro to this array!
+// Copy and paste the top item in the array into the 
+// second-to-last position and make some modifications. 
+// (essentially, leave the last entry in the array as {nullptr, nullptr, {nullptr}, nullptr})
+
+// Keep the DEFAULT_SCHEMA (no change needed)
+// Replace "times_two" with a name for your macro
+// If your function has parameters, add their names in quotes inside of the {}, with a nullptr at the end
+//      If you do not have parameters, simplify to {nullptr}
+// Add the text of your SQL macro as a raw string with the format R"( select 42 )"
+static DefaultMacro dynamic_sql_examples_macros[] = {
+    {DEFAULT_SCHEMA, "times_two", {"x", nullptr}, R"(x*2)"},
+    {nullptr, nullptr, {nullptr}, nullptr}};
+
+
+// To add a new table SQL macro, add a new macro to this array!
+// Copy and paste the top item in the array into the 
+// second-to-last position and make some modifications. 
+// (essentially, leave the last entry in the array as {nullptr, nullptr, {nullptr}, nullptr})
+
+// Keep the DEFAULT_SCHEMA (no change needed)
+// Replace "times_two_table" with a name for your macro
+// If your function has parameters without default values, add their names in quotes inside of the {}, with a nullptr at the end
+//      If you do not have parameters, simplify to {nullptr}
+// If your function has parameters with default values, add their names and values in quotes inside of {}'s inside of the {}.
+// Be sure to keep {nullptr, nullptr} at the end
+//      If you do not have parameters with default values, simplify to {nullptr, nullptr}
+// Add the text of your SQL macro as a raw string with the format R"( select 42; )" 
+
+// clang-format off
+static const DefaultTableMacro dynamic_sql_examples_table_macros[] = {
+	{DEFAULT_SCHEMA, "times_two_table", {"x", nullptr}, {{"two", "2"}, {nullptr, nullptr}},  R"(SELECT x * two as output_column;)"},
+	{nullptr, nullptr, {nullptr}, {{nullptr, nullptr}}, nullptr}
+	};
+// clang-format on
+
 inline void PivotTableScalarFun(DataChunk &args, ExpressionState &state, Vector &result) {
     auto &name_vector = args.data[0];
     UnaryExecutor::Execute<string_t, string_t>(
@@ -45,6 +82,17 @@ static void LoadInternal(DatabaseInstance &instance) {
     auto pivot_table_openssl_version_scalar_function = ScalarFunction("pivot_table_openssl_version", {LogicalType::VARCHAR},
                                                 LogicalType::VARCHAR, PivotTableOpenSSLVersionScalarFun);
     ExtensionUtil::RegisterFunction(instance, pivot_table_openssl_version_scalar_function);
+
+    // Macros
+	for (idx_t index = 0; dynamic_sql_examples_macros[index].name != nullptr; index++) {
+		auto info = DefaultFunctionGenerator::CreateInternalMacroInfo(dynamic_sql_examples_macros[index]);
+		ExtensionUtil::RegisterFunction(instance, *info);
+	}
+    // Table Macros
+    for (idx_t index = 0; dynamic_sql_examples_table_macros[index].name != nullptr; index++) {
+		auto table_info = DefaultTableFunctionGenerator::CreateTableMacroInfo(dynamic_sql_examples_table_macros[index]);
+        ExtensionUtil::RegisterFunction(instance, *table_info);
+	}
 }
 
 void PivotTableExtension::Load(DuckDB &db) {
