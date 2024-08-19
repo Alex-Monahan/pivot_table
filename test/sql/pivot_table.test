@@ -1,0 +1,23 @@
+# name: test/sql/pivot_table.test
+# description: test pivot_table extension
+# group: [pivot_table]
+
+# Before we load the extension, this will fail
+statement error
+SELECT pivot_table('Sam');
+----
+Catalog Error: Scalar Function with name pivot_table does not exist!
+
+# Require statement will ensure this test is run with this extension loaded
+require pivot_table
+
+# Confirm the extension works
+query I
+SELECT pivot_table('Sam');
+----
+PivotTable Sam 🐥
+
+query I
+SELECT pivot_table_openssl_version('Michael');
+----
+<REGEX>:PivotTable Michael, my linked OpenSSL version is OpenSSL.*
