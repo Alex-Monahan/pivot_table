@@ -12,12 +12,67 @@ Catalog Error: Scalar Function with name pivot_table does not exist!
 require pivot_table
 
 # Confirm the extension works
-query I
-SELECT pivot_table('Sam');
-----
-PivotTable Sam 🐥
+statement ok
+CREATE OR REPLACE TABLE my_table AS 
+    SELECT x % 11 AS col1, x % 5 AS col2, x % 2 AS col3, 1 AS col4
+    FROM range(1,101) t(x)
+;
+
+statement ok
+CREATE OR REPLACE TABLE my_table_with_nulls AS
+    FROM my_table
+    UNION ALL SELECT NULL, 0, 0, 0
+    UNION ALL SELECT 0, NULL, 0, 0
+    UNION ALL SELECT 0, 0, NULL, 0
+    UNION ALL SELECT 0, 0, 0, NULL
+;
+
+statement ok
+CREATE OR REPLACE TABLE cursed_column_names("Country Name" VARCHAR, "City's Name" VARCHAR, "The ""'Year'""" INT, "Approx. ""Population""" FLOAT);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('NL', 'Amsterdam', 2000, 1005);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('NL', 'Amsterdam', 2010, 1065);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('NL', 'Amsterdam', 2020, 1158);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('US', 'Seattle', 2000, 564);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('US', 'Seattle', 2010, 608);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('US', 'Seattle', 2020, 738);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('US', 'New York City', 2000, 8015);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('US', 'New York City', 2010, 8175);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('US', 'New York City', 2020, 8772);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('Across the "''world''"', ' "Funky''s town" ', 2000, 0);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('Across the "''world''"', ' "Funky''s town" ', 2010, -1);
+
+statement ok
+INSERT INTO cursed_column_names VALUES ('Across the "''world''"', ' "Funky''s town" ', 2020, -2);
 
 query I
-SELECT pivot_table_openssl_version('Michael');
+FROM pivot_table(['my_table'],[], ['col3'], [], []);
 ----
-<REGEX>:PivotTable Michael, my linked OpenSSL version is OpenSSL.*
+0
+1
+
+statement error
+FROM pivot_table(['zzzzz'],[], ['col3'], [], []);
+----
+Catalog Error: Table with name zzzzz does not exist!
