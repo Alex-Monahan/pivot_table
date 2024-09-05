@@ -10,14 +10,21 @@
 
 #include "duckdb/catalog/default/default_generator.hpp"
 #include "duckdb/parser/parsed_data/create_macro_info.hpp"
+#include "default_table_functions.hpp" // Needed for DefaultNamedParameter
 
 namespace duckdb {
 class SchemaCatalogEntry;
+
+// struct DefaultNamedParameter {
+// 	const char *name;
+// 	const char *default_value;
+// };
 
 struct DefaultMacro {
 	const char *schema;
 	const char *name;
 	const char *parameters[8];
+	DefaultNamedParameter named_parameters[8];
 	const char *macro;
 };
 
