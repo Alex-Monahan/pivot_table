@@ -11,8 +11,8 @@
 // OpenSSL linked through vcpkg
 #include <openssl/opensslv.h>
 
-#include "default_functions.hpp"
-#include "default_table_functions.hpp"
+#include "duckdb/catalog/default/default_functions.hpp"
+#include "duckdb/catalog/default/default_table_functions.hpp"
 
 namespace duckdb {
 
@@ -31,14 +31,174 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
     // nq = no quotes
     // sq = single quotes
     // dq = double quotes
-    {DEFAULT_SCHEMA, "sq", {"my_varchar", nullptr}, R"( ''''||replace(my_varchar,'''', '''''')||'''' )"},
-    {DEFAULT_SCHEMA, "dq", {"my_varchar", nullptr}, R"( '"'||replace(my_varchar,'"', '""')||'"' )"},
-    {DEFAULT_SCHEMA, "sq_list", {"my_list", nullptr}, R"( list_transform(my_list, (i) -> sq(i)) )"},
-    {DEFAULT_SCHEMA, "dq_list", {"my_list", nullptr}, R"( list_transform(my_list, (i) -> dq(i)) )"},
-    {DEFAULT_SCHEMA, "nq_concat", {"my_list", "separator", nullptr}, R"( list_reduce(my_list, (x, y) -> x || separator || y) )"},
-    {DEFAULT_SCHEMA, "sq_concat", {"my_list", "separator", nullptr}, R"( list_reduce(sq_list(my_list), (x, y) -> x || separator || y) )"},
-    {DEFAULT_SCHEMA, "dq_concat", {"my_list", "separator", nullptr}, R"( list_reduce(dq_list(my_list), (x, y) -> x || separator || y) )"},
-    {nullptr, nullptr, {nullptr}, nullptr}};
+    {DEFAULT_SCHEMA, "sq", {"my_varchar", nullptr}, {{nullptr, nullptr}}, R"( ''''||replace(my_varchar,'''', '''''')||'''' )"},
+    {DEFAULT_SCHEMA, "dq", {"my_varchar", nullptr}, {{nullptr, nullptr}}, R"( '"'||replace(my_varchar,'"', '""')||'"' )"},
+    {DEFAULT_SCHEMA, "sq_list", {"my_list", nullptr}, {{nullptr, nullptr}}, R"( list_transform(my_list, (i) -> sq(i)) )"},
+    {DEFAULT_SCHEMA, "dq_list", {"my_list", nullptr}, {{nullptr, nullptr}}, R"( list_transform(my_list, (i) -> dq(i)) )"},
+    {DEFAULT_SCHEMA, "nq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(my_list, (x, y) -> x || separator || y) )"},
+    {DEFAULT_SCHEMA, "sq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(sq_list(my_list), (x, y) -> x || separator || y) )"},
+    {DEFAULT_SCHEMA, "dq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(dq_list(my_list), (x, y) -> x || separator || y) )"},
+    {DEFAULT_SCHEMA, "totals_list", {"rows", nullptr}, {{"subtotals", "1"}, {"grand_totals", "1"}, {nullptr, nullptr}}, R"( 
+    [
+        CASE WHEN i = length(rows) - 1 THEN 
+            nq_concat(
+                list_transform(
+                    rows[:-(i+1):-1],
+                    (j) -> '''zzzGrand Total'' as ' || dq(j)
+                ),
+                ', '
+            )
+        ELSE 
+            nq_concat(
+                list_transform(
+                    rows[:-(i+1):-1],
+                    (j) -> '''zzzSubtotal'' as ' || dq(j)
+                ),
+                ', '
+            )
+        END
+        for i in range(
+            CASE WHEN subtotals THEN 0 ELSE length(rows) - 1 END, /* If no subtotals, only do the all-columns case  */
+            CASE WHEN grand_totals THEN length(rows) ELSE length(rows) - 1 END) /* If no grand_totals, we don't do all rows, we do rows-1 (there is no subtotal on first "row" parameter element)*/
+    ]
+    )"},
+    {DEFAULT_SCHEMA, "replace_zzz", {"rows", "extra_cols", nullptr}, {{nullptr, nullptr}}, R"( 
+        'SELECT 
+            replace(
+                replace(
+                    COLUMNS(c -> list_contains(['|| sq_concat(rows, ', ') ||', ' || 
+                        sq_concat(extra_cols, ', ')|| '], c))::varchar,
+                    ''zzzSubtotal'',
+                    ''Subtotal''
+                    ),
+                ''zzzGrand Total'',
+                ''Grand Total''),
+            columns(c -> NOT list_contains(['||sq_concat(rows, ', ')||'], c) AND c NOT IN (' || 
+                sq_concat(extra_cols, ', ') ||'))
+        '
+    )"},
+    {DEFAULT_SCHEMA, "no_columns", {"table_names", "values", "rows", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        'FROM query_table(['||dq_concat(table_names, ', ')||']) 
+        SELECT 
+            1 as dummy_column,
+            '||CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
+                nq_concat(list_transform(rows, (r) -> 'case when list_aggregate(['||nq_concat(
+                        list_transform(
+                            rows,
+                            (i) -> 'GROUPING('||dq(i)||')'),
+                            ', ') ||'],
+                        ''sum'') = '||length(rows)||' then ''Grand Total''
+                    when GROUPING('||dq(r)||') = 1 then ''Subtotal'' 
+                    else '||dq(r)||'::varchar 
+                    end as '||dq(r)),
+                    ', ')||', '
+                ELSE coalesce(dq_concat(rows, ', ')||',', '') 
+                END ||'
+            '||CASE WHEN values_axis != 'rows' OR length(values) = 0 THEN '' 
+                ELSE ' UNNEST(['||sq_concat(values, ', ')||']) AS value_names, 
+                    UNNEST([' END||'
+                    '||coalesce(nq_concat(values, ', ')||' ', '') ||'
+            '||CASE WHEN values_axis != 'rows' OR length(values) = 0 THEN '' ELSE ']) AS values ' END||'
+        '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '') ||'
+        GROUP BY ' || 
+            CASE WHEN subtotals AND length(rows) > 0 THEN 'ROLLUP ('|| dq_concat(rows, ', ') ||') ' 
+            WHEN grand_totals AND length(rows) > 0  AND NOT subtotals THEN 'GROUPING SETS ((), ('|| dq_concat(rows, ', ') ||'))'
+            ELSE 'ALL ' 
+            END ||' 
+        ' ||CASE WHEN NOT grand_totals AND subtotals AND length(rows) > 0 THEN 'HAVING 
+        list_aggregate(['||nq_concat(
+                        list_transform(
+                            rows,
+                            (i) -> 'GROUPING('||dq(i)||')'),
+                            ', ') ||'],
+                        ''sum'') != '||length(rows) ELSE '' END|| '
+        ORDER BY ' || 
+            CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
+                nq_concat(
+                    list_transform(
+                        rows,
+                        (i) -> 'GROUPING('||dq(i)||'), '||dq(i)),
+                    ', ') 
+            ELSE 'ALL NULLS FIRST ' 
+            END 
+    )"},
+    {DEFAULT_SCHEMA, "columns_values_axis_columns", {"table_names", "values", "rows", "columns", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        'WITH raw_pivot AS (
+            PIVOT (
+                '||
+                CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
+                    nq_concat(
+                        ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
+                        SELECT *, 1 as dummy_column'] || 
+                        list_transform(
+                            totals_list(rows, subtotals:=subtotals, grand_totals:=grand_totals),
+                            k -> 
+                            'FROM query_table(['||dq_concat(table_names, ', ')||']) 
+                            SELECT * replace(' || k || '), 1 as dummy_column'
+                        ),
+                        ' 
+                        UNION ALL BY NAME 
+                        ' 
+                    )
+                ELSE '
+                    FROM query_table(['||dq_concat(table_names, ', ')||']) 
+                    SELECT *, 1 as dummy_column
+                    '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
+                END ||'
+            )
+            ON '||dq_concat(columns, ' || ''_'' || ')||' IN columns_parameter_enum
+            '|| coalesce('USING '||nq_concat(values, ', '), '')||'
+            GROUP BY dummy_column'||coalesce(', '||dq_concat(rows, ', '),'') || ' 
+            ORDER BY ALL NULLS FIRST 
+        ) FROM raw_pivot 
+        '|| CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
+            replace_zzz(rows, ['dummy_column'])
+        ELSE ''
+        END
+    )"},
+    {DEFAULT_SCHEMA, "columns_values_axis_rows", {"table_names", "values", "rows", "columns", "filters", nullptr}, {{"values_axis", "'rows'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        'WITH raw_pivot AS ( '||
+            nq_concat(
+                list_transform(values, (i) -> 
+                    '
+                    FROM (
+                        PIVOT (
+                            '||
+                            CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
+                                nq_concat(
+                                    ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
+                                    SELECT *, 1 as dummy_column, '|| sq(i)||' AS value_names '] || 
+                                    list_transform(
+                                        totals_list(rows, subtotals:=subtotals, grand_totals:=grand_totals),
+                                        k -> 
+                                        'FROM query_table(['||dq_concat(table_names, ', ')||']) 
+                                        SELECT * replace(' || k || '), 1 as dummy_column, '|| sq(i) ||' AS value_names '
+                                    ),
+                                    ' 
+                                    UNION ALL BY NAME 
+                                    '
+                                )
+                            ELSE '
+                                FROM query_table(['||dq_concat(table_names, ', ')||']) 
+                                SELECT *, 1 as dummy_column, '|| sq(i) ||' AS value_names 
+                                '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
+                            END ||'
+                        )
+                        ON '||dq_concat(columns, ' || ''_'' || ')||' IN columns_parameter_enum
+                        USING '|| i ||'
+                        GROUP BY dummy_column' ||coalesce(', '||dq_concat(rows, ', '),'')||', value_names 
+                    ) 
+                    ' 
+                ),
+                ' UNION ALL BY NAME '
+            ) || ' ORDER BY ALL NULLS FIRST
+        ) FROM raw_pivot 
+        '|| CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
+            replace_zzz(rows, ['dummy_column', 'value_names'])
+        ELSE ''
+        END
+    )"},
+    {nullptr, nullptr, {nullptr}, {{nullptr, nullptr}}, nullptr}};
 
 
 // To add a new table SQL macro, add a new macro to this array!
@@ -58,6 +218,37 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
 // clang-format off
 static const DefaultTableMacro dynamic_sql_examples_table_macros[] = {
 	{DEFAULT_SCHEMA, "times_two_table", {"x", nullptr}, {{"two", "2"}, {nullptr, nullptr}},  R"(SELECT x * two as output_column;)"},
+	{DEFAULT_SCHEMA, "build_my_enum", {"table_names", "columns", "filters", nullptr}, {{nullptr, nullptr}},  R"(
+        FROM query(
+            '
+        FROM query_table(['||dq_concat(table_names, ', ')||']) 
+        SELECT DISTINCT
+            '||coalesce(nq_concat(list_transform(dq_list(columns), (i) -> 'coalesce(' ||i||'::varchar , ''NULL'')'), ' || ''_'' || ')||'', '1')||'
+        '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '') ||'
+        ORDER BY ALL
+        '
+        )
+    )"},
+    {DEFAULT_SCHEMA, "pivot_table", {"table_names", "values", "rows", "columns", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        -- Dynamically build up a SQL string then execute it using the query function.
+        -- If the columns parameter is populated, a PIVOT statement will be executed.
+        -- If an empty columns parameter is passed, then the statement will be a group by.
+        -- The values_axis describes which axis to put multiple values parameters onto. 
+        --    Ex: If values:=['sum(col1)', 'max(col2)'], should we have a separate column for each value or a separate row?
+        -- If columns are passed in, the values axis should be handled differently, so there are 2 cases for the different values_axis parameters
+        -- This function only requires one of these three lists to have at least one element: rows, values, columns. 
+        -- The filters list is optional. 
+        FROM query(
+            CASE WHEN length(columns) = 0 THEN 
+                no_columns(table_names, values, rows, filters, values_axis := values_axis, subtotals := subtotals, grand_totals := grand_totals)
+            WHEN values_axis = 'columns' OR length(values) = 0 THEN 
+                columns_values_axis_columns(table_names, values, rows, columns, filters, values_axis := 'columns', subtotals := subtotals, grand_totals := grand_totals)
+            WHEN values_axis = 'rows' THEN 
+                columns_values_axis_rows(table_names, values, rows, columns, filters, values_axis := 'rows', subtotals := subtotals, grand_totals := grand_totals)
+            END
+        )
+        SELECT * EXCLUDE (dummy_column)
+    )"},
 	{nullptr, nullptr, {nullptr}, {{nullptr, nullptr}}, nullptr}
 	};
 // clang-format on
