@@ -31,11 +31,25 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
     // nq = no quotes
     // sq = single quotes
     // dq = double quotes
+    {DEFAULT_SCHEMA, "nq", {"my_varchar", nullptr}, {{nullptr, nullptr}}, R"( 
+        -- We do not want to allow semicolons because we do not want to allow multiple statements to be run.
+        -- This combines with the query function's boundaries of 
+        -- only running a single statement and only running read queries only
+        -- to protect against unwanted execution
+        replace(my_varchar, ';', 'No semicolons are permitted here')
+    )"},
     {DEFAULT_SCHEMA, "sq", {"my_varchar", nullptr}, {{nullptr, nullptr}}, R"( ''''||replace(my_varchar,'''', '''''')||'''' )"},
     {DEFAULT_SCHEMA, "dq", {"my_varchar", nullptr}, {{nullptr, nullptr}}, R"( '"'||replace(my_varchar,'"', '""')||'"' )"},
+    {DEFAULT_SCHEMA, "nq_list", {"my_list", nullptr}, {{nullptr, nullptr}}, R"( list_transform(my_list, (i) -> nq(i)) )"},
     {DEFAULT_SCHEMA, "sq_list", {"my_list", nullptr}, {{nullptr, nullptr}}, R"( list_transform(my_list, (i) -> sq(i)) )"},
     {DEFAULT_SCHEMA, "dq_list", {"my_list", nullptr}, {{nullptr, nullptr}}, R"( list_transform(my_list, (i) -> dq(i)) )"},
-    {DEFAULT_SCHEMA, "nq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(my_list, (x, y) -> x || separator || y) )"},
+    {DEFAULT_SCHEMA, "nq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( 
+        -- We want to tolerate cases where a list is blank and use it to remove entire clauses
+        -- (Ex: if there are no filters, there should be no where clause at all)
+        CASE WHEN length(my_list) = 0 THEN NULL
+        ELSE list_reduce(nq_list(my_list), (x, y) -> x || separator || y)
+        END
+    )"},
     {DEFAULT_SCHEMA, "sq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(sq_list(my_list), (x, y) -> x || separator || y) )"},
     {DEFAULT_SCHEMA, "dq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(dq_list(my_list), (x, y) -> x || separator || y) )"},
     {DEFAULT_SCHEMA, "totals_list", {"rows", nullptr}, {{"subtotals", "1"}, {"grand_totals", "1"}, {nullptr, nullptr}}, R"( 
@@ -185,7 +199,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                             END ||'
                         )
                         ON '||dq_concat(columns, ' || ''_'' || ')||' IN columns_parameter_enum
-                        USING '|| i ||'
+                        USING '|| nq(i) ||'
                         GROUP BY dummy_column' ||coalesce(', '||dq_concat(rows, ', '),'')||', value_names 
                     ) 
                     ' 
