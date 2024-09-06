@@ -53,6 +53,12 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
     {DEFAULT_SCHEMA, "sq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(sq_list(my_list), (x, y) -> x || separator || y) )"},
     {DEFAULT_SCHEMA, "dq_concat", {"my_list", "separator", nullptr}, {{nullptr, nullptr}}, R"( list_reduce(dq_list(my_list), (x, y) -> x || separator || y) )"},
     {DEFAULT_SCHEMA, "totals_list", {"rows", nullptr}, {{"subtotals", "1"}, {"grand_totals", "1"}, {nullptr, nullptr}}, R"( 
+    -- Return a list of expressions that will be used in a "SELECT * REPLACE(" clause
+    -- in order to enable subtotals and/or grand totals.
+    -- This will be used to hardcode all values within specific columns into a single string
+    -- so that when an aggregation is applied, it aggregates across the subtotal or grand_total level of granularity
+    -- Output is in the format: ['zzzSubtotal' as "subcat", 'zzzGrand Total' as "subcat", 'zzzGrand Total' as "category"]
+    -- The zzz's are used to force the subtotals and grand totals to be placed at the bottom of the raw data when sorting
     [
         CASE WHEN i = length(rows) - 1 THEN 
             nq_concat(
@@ -77,6 +83,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
     ]
     )"},
     {DEFAULT_SCHEMA, "replace_zzz", {"rows", "extra_cols", nullptr}, {{nullptr, nullptr}}, R"( 
+        -- After sorting, remove the zzz's that forced subtotals and grand totals to the bottom
         'SELECT 
             replace(
                 replace(
@@ -92,6 +99,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
         '
     )"},
     {DEFAULT_SCHEMA, "no_columns", {"table_names", "values", "rows", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        
         'FROM query_table(['||dq_concat(table_names, ', ')||']) 
         SELECT 
             1 as dummy_column,
