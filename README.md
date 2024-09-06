@@ -35,15 +35,20 @@ The main binaries that will be built are:
 ## Running the extension
 To run the extension code, simply start the shell with `./build/release/duckdb`.
 
-Now we can use the features from the extension directly in DuckDB. The template contains a single scalar function `pivot_table()` that takes a string arguments and returns a string:
+Now we can use the features from the extension directly in DuckDB. 
 ```
-D select pivot_table('Jane') as result;
-┌───────────────┐
-│    result     │
-│    varchar    │
-├───────────────┤
-│ Pivot_table Jane 🐥 │
-└───────────────┘
+D create or replace temp table my_table as 
+      SELECT x % 11 AS col1, x % 5 AS col2, x % 2 AS col3, 1 AS col4
+      FROM range(1,101) t(x)
+;
+D select * FROM pivot_table(['my_table'],[], ['col3'], [], []);
+┌───────┐
+│ col3  │
+│ int64 │
+├───────┤
+│     0 │
+│     1 │
+└───────┘
 ```
 
 ## Running the tests
