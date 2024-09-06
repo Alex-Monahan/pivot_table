@@ -2,6 +2,9 @@
 # description: test pivot_table extension
 # group: [pivot_table]
 
+statement ok
+PRAGMA enable_verification;
+
 # Before we load the extension, this will fail
 statement error
 SELECT pivot_table('Sam');
@@ -76,3 +79,24 @@ statement error
 FROM pivot_table(['zzzzz'],[], ['col3'], [], []);
 ----
 Catalog Error: Table with name zzzzz does not exist!
+
+# Validate that the most complex query will run across all combinations of values_axis, subtotals, and grand_totals
+foreach values_axis rows columns
+
+loop subtotals 0 1
+
+loop grand_totals 0 1
+
+# skipif and onlyif evaluate each expression separately, not in combination with one another. 
+# (So I can't exclude invalid pivot table parameter combinations)
+# As a result, I will just use this for the values_axis, subtotals, and grand_totals parameters
+
+statement ok
+FROM pivot_table(['my_table', 'my_table_with_nulls'], ['sum(col1)', 'sum(col2)'], ['col3', 'col4'], [], ['col3 = 0', 'col3 = 0+0'], values_axis:='${values_axis}', subtotals:=${subtotals}, grand_totals:=${grand_totals});
+
+endloop
+
+endloop
+
+endloop
+
