@@ -99,10 +99,17 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
         '
     )"},
     {DEFAULT_SCHEMA, "no_columns", {"table_names", "values", "rows", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
-        
+        -- If no columns are being pivoted horizontally (columns parameter is an empty list), 
+        -- use a group by operation to create the output table. 
         'FROM query_table(['||dq_concat(table_names, ', ')||']) 
         SELECT 
+            -- ROWS 
+            -- Select a dummy column and all columns in the rows parameter
             1 as dummy_column,
+            
+            -- If using subtotals or grand_totals, detect which rows are subtotals and/or grand_totals
+            -- using the GROUPING function, since in these cases GROUPING SETS are in use.
+            -- Then replace what would have been a NULL with the text Grand Total or Subtotal.
             '||CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
                 nq_concat(list_transform(rows, (r) -> 'case when list_aggregate(['||nq_concat(
                         list_transform(
@@ -116,17 +123,31 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                     ', ')||', '
                 ELSE coalesce(dq_concat(rows, ', ')||',', '') 
                 END ||'
+            
+            -- VALUES 
+            -- If values_axis is columns, then just have a separate column for each value
+            -- If values_axis is rows, unnest so that there is a separate row for each value
             '||CASE WHEN values_axis != 'rows' OR length(values) = 0 THEN '' 
                 ELSE ' UNNEST(['||sq_concat(values, ', ')||']) AS value_names, 
                     UNNEST([' END||'
                     '||coalesce(nq_concat(values, ', ')||' ', '') ||'
             '||CASE WHEN values_axis != 'rows' OR length(values) = 0 THEN '' ELSE ']) AS values ' END||'
+        
+        -- FILTERS 
+        -- Filter the data if requested. The WHERE clause is entirely removed if filters is an empty list.
         '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '') ||'
+        
+        -- If using subtotals, use a ROLLUP 
+        -- (note this will include a grand_total, which is filtered out with a HAVING clause if grand_totals=0)
+        -- If using grand totals and not subtotals, use GROUPING SETS to add just a total
+        -- If no subtotals or grand totals, just GROUP BY ALL.
         GROUP BY ' || 
             CASE WHEN subtotals AND length(rows) > 0 THEN 'ROLLUP ('|| dq_concat(rows, ', ') ||') ' 
             WHEN grand_totals AND length(rows) > 0  AND NOT subtotals THEN 'GROUPING SETS ((), ('|| dq_concat(rows, ', ') ||'))'
             ELSE 'ALL ' 
             END ||' 
+        
+        -- If subtotals were requested, but not grand_totals, filter out the grand_totals row
         ' ||CASE WHEN NOT grand_totals AND subtotals AND length(rows) > 0 THEN 'HAVING 
         list_aggregate(['||nq_concat(
                         list_transform(
@@ -134,6 +155,9 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                             (i) -> 'GROUPING('||dq(i)||')'),
                             ', ') ||'],
                         ''sum'') != '||length(rows) ELSE '' END|| '
+        
+        -- If using subtotals or grand_totals, ensure the subtotal/grand_total rows are sorted below non-total values.
+        -- If not, just ORDER BY ALL NULLS FIRST
         ORDER BY ' || 
             CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
                 nq_concat(
@@ -145,18 +169,26 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
             END 
     )"},
     {DEFAULT_SCHEMA, "columns_values_axis_columns", {"table_names", "values", "rows", "columns", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        -- If columns are being pivoted outward (the columns parameter is in use), and the values_axis is columns, use a PIVOT statement.
+        -- The PIVOT is wrapped in a CTE so that subtotal/grand_total indicators can be renamed to friendly names (without zzz)
+        -- after having been sorted correctly.
         'WITH raw_pivot AS (
             PIVOT (
                 '||
+                -- If using subtotals or grand_totals, add in extra copies of the raw data,
+                -- but with some or all column values replaced with static strings (Ex: zzzSubtotal)
+                -- so that the aggregations are at the subtotal or grand_total level instead of at the original level of granularity.
                 CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
                     nq_concat(
                         ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
-                        SELECT *, 1 as dummy_column'] || 
+                        SELECT *, 1 as dummy_column
+                        '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')] || 
                         list_transform(
                             totals_list(rows, subtotals:=subtotals, grand_totals:=grand_totals),
                             k -> 
                             'FROM query_table(['||dq_concat(table_names, ', ')||']) 
-                            SELECT * replace(' || k || '), 1 as dummy_column'
+                            SELECT * replace(' || k || '), 1 as dummy_column
+                            '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                         ),
                         ' 
                         UNION ALL BY NAME 
@@ -189,12 +221,14 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                             CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
                                 nq_concat(
                                     ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
-                                    SELECT *, 1 as dummy_column, '|| sq(i)||' AS value_names '] || 
+                                    SELECT *, 1 as dummy_column, '|| sq(i)||' AS value_names 
+                                    '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')] || 
                                     list_transform(
                                         totals_list(rows, subtotals:=subtotals, grand_totals:=grand_totals),
                                         k -> 
                                         'FROM query_table(['||dq_concat(table_names, ', ')||']) 
-                                        SELECT * replace(' || k || '), 1 as dummy_column, '|| sq(i) ||' AS value_names '
+                                        SELECT * replace(' || k || '), 1 as dummy_column, '|| sq(i) ||' AS value_names 
+                                        '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                                     ),
                                     ' 
                                     UNION ALL BY NAME 
