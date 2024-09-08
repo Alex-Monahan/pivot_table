@@ -182,12 +182,16 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                     nq_concat(
                         ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
                         SELECT *, 1 as dummy_column
+                        
+                        -- FILTERS
                         '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')] || 
                         list_transform(
                             totals_list(rows, subtotals:=subtotals, grand_totals:=grand_totals),
                             k -> 
                             'FROM query_table(['||dq_concat(table_names, ', ')||']) 
                             SELECT * replace(' || k || '), 1 as dummy_column
+
+                            -- FILTERS
                             '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                         ),
                         ' 
@@ -197,11 +201,22 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                 ELSE '
                     FROM query_table(['||dq_concat(table_names, ', ')||']) 
                     SELECT *, 1 as dummy_column
+
+                    -- FILTERS
                     '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                 END ||'
             )
+            -- COLUMNS 
+            -- When pivoting, do not use all combinations of values in the columns parameter,
+            -- only use the combinations that actually exist in the data. 
+            -- This is achieved by only pivoting ON one expression (that has all columns concatenated together)
             ON '||dq_concat(columns, ' || ''_'' || ')||' IN columns_parameter_enum
+
+            -- VALUES
+            -- If values are passed in, use one or more values as summary metrics
             '|| coalesce('USING '||nq_concat(values, ', '), '')||'
+
+            -- ROWS
             GROUP BY dummy_column'||coalesce(', '||dq_concat(rows, ', '),'') || ' 
             ORDER BY ALL NULLS FIRST 
         ) FROM raw_pivot 
@@ -222,12 +237,16 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                                 nq_concat(
                                     ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
                                     SELECT *, 1 as dummy_column, '|| sq(i)||' AS value_names 
+
+                                    -- FILTERS
                                     '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')] || 
                                     list_transform(
                                         totals_list(rows, subtotals:=subtotals, grand_totals:=grand_totals),
                                         k -> 
                                         'FROM query_table(['||dq_concat(table_names, ', ')||']) 
                                         SELECT * replace(' || k || '), 1 as dummy_column, '|| sq(i) ||' AS value_names 
+
+                                        -- FILTERS
                                         '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                                     ),
                                     ' 
@@ -237,6 +256,8 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                             ELSE '
                                 FROM query_table(['||dq_concat(table_names, ', ')||']) 
                                 SELECT *, 1 as dummy_column, '|| sq(i) ||' AS value_names 
+
+                                -- FILTERS
                                 '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                             END ||'
                         )
@@ -260,7 +281,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
 // To add a new table SQL macro, add a new macro to this array!
 // Copy and paste the top item in the array into the 
 // second-to-last position and make some modifications. 
-// (essentially, leave the last entry in the array as {nullptr, nullptr, {nullptr}, nullptr})
+// (essentially, leave the last entry in the array as {nullptr, nullptr, {nullptr}, {{nullptr, nullptr}}, nullptr}
 
 // Keep the DEFAULT_SCHEMA (no change needed)
 // Replace "times_two_table" with a name for your macro
@@ -273,12 +294,19 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
 
 // clang-format off
 static const DefaultTableMacro dynamic_sql_examples_table_macros[] = {
-	{DEFAULT_SCHEMA, "times_two_table", {"x", nullptr}, {{"two", "2"}, {nullptr, nullptr}},  R"(SELECT x * two as output_column;)"},
 	{DEFAULT_SCHEMA, "build_my_enum", {"table_names", "columns", "filters", nullptr}, {{nullptr, nullptr}},  R"(
+        -- DuckDB MACROs must be a single statement, and to keep the PIVOT statement a single statement also,
+        -- we need to already know the names of the columns that are being pivoted out. 
+        -- This function is used to create an enum (in client code that uses this library)
+        -- that will contain all of those column names.
         FROM query(
             '
         FROM query_table(['||dq_concat(table_names, ', ')||']) 
         SELECT DISTINCT
+            -- When pivoting, do not use all combinations of values in the columns parameter,
+            -- only use the combinations that actually exist in the data. 
+            -- This is achieved by only pivoting ON one expression (that has all columns concatenated together).
+            -- Therefore, we concatenate everything together here with an _ separator.
             '||coalesce(nq_concat(list_transform(dq_list(columns), (i) -> 'coalesce(' ||i||'::varchar , ''NULL'')'), ' || ''_'' || ')||'', '1')||'
         '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '') ||'
         ORDER BY ALL
