@@ -1813,3 +1813,2187 @@ US	Subtotal	Subtotal	max("Approx. ""Population""")	8772.0
 Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	20513.0
 Grand Total	Grand Total	Grand Total	max("Approx. ""Population""")	8772.0
 
+
+
+
+# Columns tests
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], [], [], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], [], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+10	10	10	10	10	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+104.0	101.0	99.0	97.0	95.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+55.0	10.0	49.0	10.0	48.0	10.0	53.0	10.0	52.0	10.0	47.0	10.0	46.0	10.0	51.0	10.0	50.0	10.0	45.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+max(col1)	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	9.0
+sum(col1)	55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2', 'col4'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0	1	10	10	10	10	10
+1	1	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], [], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1
+1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], ['col3 = 0'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2'], ['col3 = 0'], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0.0	55.0	48.0	52.0	46.0	50.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0.0	55.0	48.0	52.0	46.0	50.0
+1.0	49.0	53.0	47.0	51.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0.0	1.0	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1.0	1.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0.0	1.0	NULL	NULL	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	4.0	4.0	5.0	5.0	6.0	6.0	7.0	7.0	8.0	8.0	9.0	9.0	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	4.0	4.0	5.0	5.0	6.0	6.0	NULL	NULL	8.0	8.0	9.0	9.0	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	NULL	NULL	4.0	4.0	5.0	5.0	6.0	6.0	7.0	7.0	8.0	8.0	9.0	9.0	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	4.0	4.0	5.0	5.0	6.0	6.0	7.0	7.0	8.0	8.0	NULL	NULL	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	4.0	4.0	NULL	NULL	6.0	6.0	7.0	7.0	8.0	8.0	9.0	9.0
+1.0	1.0	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	4.0	4.0	5.0	5.0	NULL	NULL	7.0	7.0	8.0	8.0	9.0	9.0	0.0	0.0	1.0	1.0	10.0	10.0	NULL	NULL	3.0	3.0	4.0	4.0	5.0	5.0	6.0	6.0	7.0	7.0	8.0	8.0	9.0	9.0	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	4.0	4.0	5.0	5.0	6.0	6.0	7.0	7.0	NULL	NULL	9.0	9.0	0.0	0.0	1.0	1.0	10.0	10.0	2.0	2.0	3.0	3.0	NULL	NULL	5.0	5.0	6.0	6.0	7.0	7.0	8.0	8.0	9.0	9.0	0.0	0.0	1.0	1.0	NULL	NULL	2.0	2.0	3.0	3.0	4.0	4.0	5.0	5.0	6.0	6.0	7.0	7.0	8.0	8.0	9.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+0	1	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	1	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	1	sum(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	1	sum(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table', 'my_table_with_nulls'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table', 'my_table_with_nulls'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+0	NULL	max(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	NULL	sum(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0.0	max(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0.0	sum(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	1.0	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0	NULL
+0	1.0	sum(col1)	NULL	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	NULL	16.0	18.0	0.0	2.0	20.0	4.0	NULL	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	NULL	12.0	14.0	16.0	18.0	NULL
+1	1.0	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	NULL	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+1	1.0	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	NULL	14.0	16.0	18.0	NULL	0.0	2.0	20.0	NULL	6.0	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	NULL	18.0	0.0	2.0	20.0	4.0	6.0	NULL	10.0	12.0	14.0	16.0	18.0	0.0	2.0	NULL	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+3	3	6
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ["City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIII
+FROM pivot_table(['cursed_column_names'], [], [], ["City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+3	3	3	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+4	4	4
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+0.0	1.0	-1.0	1.0	-2.0	1.0	1005.0	1.0	1065.0	1.0	1158.0	1.0	8015.0	1.0	8175.0	1.0	8772.0	1.0	564.0	1.0	608.0	1.0	738.0	1.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+count("City's Name")	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0
+sum("Approx. ""Population""")	0.0	-1.0	-2.0	1005.0	1065.0	1158.0	8015.0	8175.0	8772.0	564.0	608.0	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+2000.0	0.0	1.0	1005.0	1.0	8015.0	1.0	564.0	1.0
+2010.0	-1.0	1.0	1065.0	1.0	8175.0	1.0	608.0	1.0
+2020.0	-2.0	1.0	1158.0	1.0	8772.0	1.0	738.0	1.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+2000	count("City's Name")	1.0	1.0	1.0	1.0
+2000	sum("Approx. ""Population""")	0.0	1005.0	8015.0	564.0
+2010	count("City's Name")	1.0	1.0	1.0	1.0
+2010	sum("Approx. ""Population""")	-1.0	1065.0	8175.0	608.0
+2020	count("City's Name")	1.0	1.0	1.0	1.0
+2020	sum("Approx. ""Population""")	-2.0	1158.0	8772.0	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1
+New York City	2010	NULL	0	NULL	0	8175.0	1
+New York City	2020	NULL	0	NULL	0	8772.0	1
+Seattle	2000	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	738.0	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+ "Funky's town" 	2000	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL
+ "Funky's town" 	2010	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL
+ "Funky's town" 	2020	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL
+Amsterdam	2000	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL
+Amsterdam	2010	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL
+Amsterdam	2020	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL
+New York City	2000	count("City's Name")	0.0	0.0	1.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0
+New York City	2010	count("City's Name")	0.0	0.0	1.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0
+New York City	2020	count("City's Name")	0.0	0.0	1.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0
+Seattle	2000	count("City's Name")	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	564.0
+Seattle	2010	count("City's Name")	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	608.0
+Seattle	2020	count("City's Name")	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='columns', subtotals:=0, grand_totals:=0);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1	NULL	0
+New York City	2010	NULL	0	NULL	0	8175.0	1	NULL	0
+New York City	2020	NULL	0	NULL	0	8772.0	1	NULL	0
+Seattle	2000	NULL	0	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	NULL	0	738.0	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='rows', subtotals:=0, grand_totals:=0);
+----
+ "Funky's town" 	2000	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL	NULL
+ "Funky's town" 	2010	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL	NULL
+ "Funky's town" 	2020	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL	NULL
+Amsterdam	2000	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL	NULL
+Amsterdam	2010	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL	NULL
+Amsterdam	2020	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL	NULL
+New York City	2000	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0	NULL
+New York City	2010	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0	NULL
+New York City	2020	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0	NULL
+Seattle	2000	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	NULL	564.0
+Seattle	2010	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	NULL	608.0
+Seattle	2020	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	NULL	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], [], [], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], [], [], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], [], [], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], [], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+10	10	10	10	10	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], [], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+10	10	10	10	10	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], [], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+10	10	10	10	10	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+104.0	101.0	99.0	97.0	95.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+104.0	101.0	99.0	97.0	95.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+104.0	101.0	99.0	97.0	95.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+55.0	10.0	49.0	10.0	48.0	10.0	53.0	10.0	52.0	10.0	47.0	10.0	46.0	10.0	51.0	10.0	50.0	10.0	45.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+55.0	10.0	49.0	10.0	48.0	10.0	53.0	10.0	52.0	10.0	47.0	10.0	46.0	10.0	51.0	10.0	50.0	10.0	45.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+55.0	10.0	49.0	10.0	48.0	10.0	53.0	10.0	52.0	10.0	47.0	10.0	46.0	10.0	51.0	10.0	50.0	10.0	45.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+max(col1)	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	9.0
+sum(col1)	55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+max(col1)	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	9.0
+sum(col1)	55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col3'], [])
+)
+
+query IIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], [], ['col2', 'col3'], [], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+max(col1)	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	10.0	9.0
+sum(col1)	55.0	49.0	48.0	53.0	52.0	47.0	46.0	51.0	50.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+Grand Total	20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+Grand Total	20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2', 'col4'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2', 'col4'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+Grand Total	20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], [])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], [], ['col3'], ['col2', 'col4'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	10	10	10	10	10
+1	10	10	10	10	10
+Grand Total	20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	1	10	10	10	10	10
+0	Subtotal	10	10	10	10	10
+1	1	10	10	10	10	10
+1	Subtotal	10	10	10	10	10
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	1	10	10	10	10	10
+1	1	10	10	10	10	10
+Grand Total	Grand Total	20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], [])
+)
+
+query IIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	1	10	10	10	10	10
+0	Subtotal	10	10	10	10	10
+1	1	10	10	10	10	10
+1	Subtotal	10	10	10	10	10
+Grand Total	Grand Total	20	20	20	20	20
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], [], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1
+0	Subtotal	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1
+1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1
+1	Subtotal	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], [], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1
+1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1
+Grand Total	Grand Total	1	2	2	2	2	2	2	1	2	2	2	2	2	2	1	2	2	2	2	1	2	2	2	2	2	2	1	2	2	2	2	1	2	2	2	2	2	2	1	2	2	2	2	1	2	2	1	2	2	2	1	2	2	2	2
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], [])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], [], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1
+0	Subtotal	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1
+1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1
+1	Subtotal	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	0	1	1	1	1	1	1	0	1	1	1	1	1	1	1	0	1	1	1	1	1	1	1	1
+Grand Total	Grand Total	1	2	2	2	2	2	2	1	2	2	2	2	2	2	1	2	2	2	2	1	2	2	2	2	2	2	1	2	2	2	2	1	2	2	2	2	2	2	1	2	2	2	2	1	2	2	1	2	2	2	1	2	2	2	2
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+0	Subtotal	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+Grand Total	Grand Total	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], [], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+0	Subtotal	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+Grand Total	Grand Total	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], ['col3 = 0'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2'], ['col3 = 0'], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	55.0	48.0	52.0	46.0	50.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], ['col3 = 0'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2'], ['col3 = 0'], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	55.0	48.0	52.0	46.0	50.0
+Grand Total	55.0	48.0	52.0	46.0	50.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2'], ['col3 = 0'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2'], ['col3 = 0'], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	55.0	48.0	52.0	46.0	50.0
+Grand Total	55.0	48.0	52.0	46.0	50.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	55.0	48.0	52.0	46.0	50.0
+1	49.0	53.0	47.0	51.0	45.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	55.0	48.0	52.0	46.0	50.0
+1	49.0	53.0	47.0	51.0	45.0
+Grand Total	104.0	101.0	99.0	97.0	95.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'])
+)
+
+query IIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3'], ['col2', 'col4'], ['col3 = 0 OR col3 = 1'], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	55.0	48.0	52.0	46.0	50.0
+1	49.0	53.0	47.0	51.0	45.0
+Grand Total	104.0	101.0	99.0	97.0	95.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	1	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	Subtotal	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	Subtotal	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	1	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	0.0	2.0	20.0	4.0	6.0	8.0	10.0	6.0	14.0	16.0	18.0	0.0	2.0	20.0	2.0	6.0	8.0	10.0	12.0	7.0	16.0	18.0	0.0	2.0	20.0	4.0	3.0	8.0	10.0	12.0	14.0	8.0	18.0	0.0	2.0	20.0	4.0	6.0	4.0	10.0	12.0	14.0	16.0	9.0	0.0	2.0	10.0	4.0	6.0	8.0	5.0	12.0	14.0	16.0	18.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	1	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	Subtotal	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	Subtotal	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	0.0	2.0	20.0	4.0	6.0	8.0	10.0	6.0	14.0	16.0	18.0	0.0	2.0	20.0	2.0	6.0	8.0	10.0	12.0	7.0	16.0	18.0	0.0	2.0	20.0	4.0	3.0	8.0	10.0	12.0	14.0	8.0	18.0	0.0	2.0	20.0	4.0	6.0	4.0	10.0	12.0	14.0	16.0	9.0	0.0	2.0	10.0	4.0	6.0	8.0	5.0	12.0	14.0	16.0	18.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0	1	NULL	NULL	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	6.0	6.0	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2.0	3.0	3	4.0	4	5.0	5	6.0	6	NULL	NULL	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	NULL	NULL	4.0	4	5.0	5	6.0	6	7.0	7	8.0	8.0	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4.0	5.0	5	6.0	6	7.0	7	8.0	8	NULL	NULL	0.0	0	1.0	1	10.0	10.0	2.0	2	3.0	3	4.0	4	NULL	NULL	6.0	6	7.0	7	8.0	8	9.0	9
+0	Subtotal	NULL	NULL	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	6.0	6.0	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2.0	3.0	3	4.0	4	5.0	5	6.0	6	NULL	NULL	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	NULL	NULL	4.0	4	5.0	5	6.0	6	7.0	7	8.0	8.0	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4.0	5.0	5	6.0	6	7.0	7	8.0	8	NULL	NULL	0.0	0	1.0	1	10.0	10.0	2.0	2	3.0	3	4.0	4	NULL	NULL	6.0	6	7.0	7	8.0	8	9.0	9
+1	1	0.0	0.0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	NULL	NULL	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	NULL	NULL	3.0	3	4.0	4	5.0	5	6.0	6	7.0	7.0	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3.0	4.0	4	5.0	5	6.0	6	7.0	7	NULL	NULL	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	NULL	NULL	5.0	5	6.0	6	7.0	7	8.0	8	9.0	9.0	0.0	0	1.0	1	NULL	NULL	2.0	2	3.0	3	4.0	4	5.0	5.0	6.0	6	7.0	7	8.0	8	9.0	9
+1	Subtotal	0.0	0.0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	NULL	NULL	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	NULL	NULL	3.0	3	4.0	4	5.0	5	6.0	6	7.0	7.0	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3.0	4.0	4	5.0	5	6.0	6	7.0	7	NULL	NULL	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	NULL	NULL	5.0	5	6.0	6	7.0	7	8.0	8	9.0	9.0	0.0	0	1.0	1	NULL	NULL	2.0	2	3.0	3	4.0	4	5.0	5.0	6.0	6	7.0	7	8.0	8	9.0	9
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0	1	NULL	NULL	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	6.0	6.0	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2.0	3.0	3	4.0	4	5.0	5	6.0	6	NULL	NULL	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	NULL	NULL	4.0	4	5.0	5	6.0	6	7.0	7	8.0	8.0	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4.0	5.0	5	6.0	6	7.0	7	8.0	8	NULL	NULL	0.0	0	1.0	1	10.0	10.0	2.0	2	3.0	3	4.0	4	NULL	NULL	6.0	6	7.0	7	8.0	8	9.0	9
+1	1	0.0	0.0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	NULL	NULL	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	NULL	NULL	3.0	3	4.0	4	5.0	5	6.0	6	7.0	7.0	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3.0	4.0	4	5.0	5	6.0	6	7.0	7	NULL	NULL	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	NULL	NULL	5.0	5	6.0	6	7.0	7	8.0	8	9.0	9.0	0.0	0	1.0	1	NULL	NULL	2.0	2	3.0	3	4.0	4	5.0	5.0	6.0	6	7.0	7	8.0	8	9.0	9
+Grand Total	Grand Total	0.0	0.0	2.0	1	20.0	10	4.0	2	6.0	3	8.0	4	10.0	5	6.0	6.0	14.0	7	16.0	8	18.0	9	0.0	0	2.0	1	20.0	10	2.0	2.0	6.0	3	8.0	4	10.0	5	12.0	6	7.0	7.0	16.0	8	18.0	9	0.0	0	2.0	1	20.0	10	4.0	2	3.0	3.0	8.0	4	10.0	5	12.0	6	14.0	7	8.0	8.0	18.0	9	0.0	0	2.0	1	20.0	10	4.0	2	6.0	3	4.0	4.0	10.0	5	12.0	6	14.0	7	16.0	8	9.0	9.0	0.0	0	2.0	1	10.0	10.0	4.0	2	6.0	3	8.0	4	5.0	5.0	12.0	6	14.0	7	16.0	8	18.0	9
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0	1	NULL	NULL	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	6.0	6.0	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2.0	3.0	3	4.0	4	5.0	5	6.0	6	NULL	NULL	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	NULL	NULL	4.0	4	5.0	5	6.0	6	7.0	7	8.0	8.0	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4.0	5.0	5	6.0	6	7.0	7	8.0	8	NULL	NULL	0.0	0	1.0	1	10.0	10.0	2.0	2	3.0	3	4.0	4	NULL	NULL	6.0	6	7.0	7	8.0	8	9.0	9
+0	Subtotal	NULL	NULL	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	6.0	6.0	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2.0	3.0	3	4.0	4	5.0	5	6.0	6	NULL	NULL	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	NULL	NULL	4.0	4	5.0	5	6.0	6	7.0	7	8.0	8.0	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4.0	5.0	5	6.0	6	7.0	7	8.0	8	NULL	NULL	0.0	0	1.0	1	10.0	10.0	2.0	2	3.0	3	4.0	4	NULL	NULL	6.0	6	7.0	7	8.0	8	9.0	9
+1	1	0.0	0.0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	NULL	NULL	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	NULL	NULL	3.0	3	4.0	4	5.0	5	6.0	6	7.0	7.0	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3.0	4.0	4	5.0	5	6.0	6	7.0	7	NULL	NULL	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	NULL	NULL	5.0	5	6.0	6	7.0	7	8.0	8	9.0	9.0	0.0	0	1.0	1	NULL	NULL	2.0	2	3.0	3	4.0	4	5.0	5.0	6.0	6	7.0	7	8.0	8	9.0	9
+1	Subtotal	0.0	0.0	1.0	1	10.0	10	2.0	2	3.0	3	4.0	4	5.0	5	NULL	NULL	7.0	7	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	NULL	NULL	3.0	3	4.0	4	5.0	5	6.0	6	7.0	7.0	8.0	8	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3.0	4.0	4	5.0	5	6.0	6	7.0	7	NULL	NULL	9.0	9	0.0	0	1.0	1	10.0	10	2.0	2	3.0	3	NULL	NULL	5.0	5	6.0	6	7.0	7	8.0	8	9.0	9.0	0.0	0	1.0	1	NULL	NULL	2.0	2	3.0	3	4.0	4	5.0	5.0	6.0	6	7.0	7	8.0	8	9.0	9
+Grand Total	Grand Total	0.0	0.0	2.0	1	20.0	10	4.0	2	6.0	3	8.0	4	10.0	5	6.0	6.0	14.0	7	16.0	8	18.0	9	0.0	0	2.0	1	20.0	10	2.0	2.0	6.0	3	8.0	4	10.0	5	12.0	6	7.0	7.0	16.0	8	18.0	9	0.0	0	2.0	1	20.0	10	4.0	2	3.0	3.0	8.0	4	10.0	5	12.0	6	14.0	7	8.0	8.0	18.0	9	0.0	0	2.0	1	20.0	10	4.0	2	6.0	3	4.0	4.0	10.0	5	12.0	6	14.0	7	16.0	8	9.0	9.0	0.0	0	2.0	1	10.0	10.0	4.0	2	6.0	3	8.0	4	5.0	5.0	12.0	6	14.0	7	16.0	8	18.0	9
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+0	1	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	1	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	Subtotal	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	Subtotal	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+0	1	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	1	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0', 'col3 = 0+0'], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+0	1	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	1	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	Subtotal	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+0	Subtotal	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	max(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	sum(col1)	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	8.0	9.0	0.0	1.0	10.0	2.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	0.0	1.0	10.0	2.0	3.0	4.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	1	sum(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	Subtotal	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	Subtotal	sum(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	1	sum(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	Subtotal	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	Subtotal	sum(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	1	sum(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	1	sum(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	6.0	14.0	16.0	18.0	0.0	2.0	20.0	2.0	6.0	8.0	10.0	12.0	7.0	16.0	18.0	0.0	2.0	20.0	4.0	3.0	8.0	10.0	12.0	14.0	8.0	18.0	0.0	2.0	20.0	4.0	6.0	4.0	10.0	12.0	14.0	16.0	9.0	0.0	2.0	10.0	4.0	6.0	8.0	5.0	12.0	14.0	16.0	18.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	1	sum(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	Subtotal	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+0	Subtotal	sum(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	1	sum(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	Subtotal	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+1	Subtotal	sum(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+Grand Total	Grand Total	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	6.0	14.0	16.0	18.0	0.0	2.0	20.0	2.0	6.0	8.0	10.0	12.0	7.0	16.0	18.0	0.0	2.0	20.0	4.0	3.0	8.0	10.0	12.0	14.0	8.0	18.0	0.0	2.0	20.0	4.0	6.0	4.0	10.0	12.0	14.0	16.0	9.0	0.0	2.0	10.0	4.0	6.0	8.0	5.0	12.0	14.0	16.0	18.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table', 'my_table_with_nulls'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table', 'my_table_with_nulls'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+0	NULL	max(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	NULL	sum(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0	max(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0	sum(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0	NULL
+0	1	sum(col1)	NULL	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	NULL	16.0	18.0	0.0	2.0	20.0	4.0	NULL	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	NULL	12.0	14.0	16.0	18.0	NULL
+0	Subtotal	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0	NULL
+0	Subtotal	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	NULL	16.0	18.0	0.0	2.0	20.0	4.0	NULL	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	NULL	12.0	14.0	16.0	18.0	NULL
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	NULL	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+1	1	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	NULL	14.0	16.0	18.0	NULL	0.0	2.0	20.0	NULL	6.0	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	NULL	18.0	0.0	2.0	20.0	4.0	6.0	NULL	10.0	12.0	14.0	16.0	18.0	0.0	2.0	NULL	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL
+1	Subtotal	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	NULL	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+1	Subtotal	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	NULL	14.0	16.0	18.0	NULL	0.0	2.0	20.0	NULL	6.0	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	NULL	18.0	0.0	2.0	20.0	4.0	6.0	NULL	10.0	12.0	14.0	16.0	18.0	0.0	2.0	NULL	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table', 'my_table_with_nulls'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table', 'my_table_with_nulls'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+0	NULL	max(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	NULL	sum(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0	max(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0	sum(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0	NULL
+0	1	sum(col1)	NULL	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	NULL	16.0	18.0	0.0	2.0	20.0	4.0	NULL	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	NULL	12.0	14.0	16.0	18.0	NULL
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	NULL	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+1	1	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	NULL	14.0	16.0	18.0	NULL	0.0	2.0	20.0	NULL	6.0	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	NULL	18.0	0.0	2.0	20.0	4.0	6.0	NULL	10.0	12.0	14.0	16.0	18.0	0.0	2.0	NULL	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL
+Grand Total	Grand Total	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+Grand Total	Grand Total	sum(col1)	0.0	4.0	40.0	8.0	12.0	16.0	20.0	12.0	28.0	32.0	36.0	NULL	0.0	4.0	40.0	4.0	12.0	16.0	20.0	24.0	14.0	32.0	36.0	0.0	4.0	40.0	8.0	6.0	16.0	20.0	24.0	28.0	16.0	36.0	0.0	4.0	40.0	8.0	12.0	8.0	20.0	24.0	28.0	32.0	18.0	0.0	4.0	20.0	8.0	12.0	16.0	10.0	24.0	28.0	32.0	36.0	NULL
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table', 'my_table_with_nulls'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['my_table', 'my_table_with_nulls'], ['sum(col1)', 'max(col1)'], ['col3', 'col4'], ['col2', 'col1'], ['col3 = 0 OR col3 = 1', 'col3 IN (0,1)'], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+0	NULL	max(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	NULL	sum(col1)	0.0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0	max(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	0	sum(col1)	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+0	1	max(col1)	NULL	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0	NULL
+0	1	sum(col1)	NULL	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	NULL	16.0	18.0	0.0	2.0	20.0	4.0	NULL	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	NULL	12.0	14.0	16.0	18.0	NULL
+0	Subtotal	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	NULL	8.0	9.0	0.0	1.0	10.0	2.0	NULL	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	NULL	6.0	7.0	8.0	9.0	NULL
+0	Subtotal	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	NULL	16.0	18.0	0.0	2.0	20.0	4.0	NULL	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	16.0	NULL	0.0	2.0	20.0	4.0	6.0	8.0	NULL	12.0	14.0	16.0	18.0	NULL
+1	1	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	NULL	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+1	1	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	NULL	14.0	16.0	18.0	NULL	0.0	2.0	20.0	NULL	6.0	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	NULL	18.0	0.0	2.0	20.0	4.0	6.0	NULL	10.0	12.0	14.0	16.0	18.0	0.0	2.0	NULL	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL
+1	Subtotal	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	NULL	7.0	8.0	9.0	NULL	0.0	1.0	10.0	NULL	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	NULL	9.0	0.0	1.0	10.0	2.0	3.0	NULL	5.0	6.0	7.0	8.0	9.0	0.0	1.0	NULL	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+1	Subtotal	sum(col1)	0.0	2.0	20.0	4.0	6.0	8.0	10.0	NULL	14.0	16.0	18.0	NULL	0.0	2.0	20.0	NULL	6.0	8.0	10.0	12.0	14.0	16.0	18.0	0.0	2.0	20.0	4.0	6.0	8.0	10.0	12.0	14.0	NULL	18.0	0.0	2.0	20.0	4.0	6.0	NULL	10.0	12.0	14.0	16.0	18.0	0.0	2.0	NULL	4.0	6.0	8.0	10.0	12.0	14.0	16.0	18.0	NULL
+Grand Total	Grand Total	max(col1)	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	0.0	1.0	10.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	NULL
+Grand Total	Grand Total	sum(col1)	0.0	4.0	40.0	8.0	12.0	16.0	20.0	12.0	28.0	32.0	36.0	NULL	0.0	4.0	40.0	4.0	12.0	16.0	20.0	24.0	14.0	32.0	36.0	0.0	4.0	40.0	8.0	6.0	16.0	20.0	24.0	28.0	16.0	36.0	0.0	4.0	40.0	8.0	12.0	8.0	20.0	24.0	28.0	32.0	18.0	0.0	4.0	20.0	8.0	12.0	16.0	10.0	24.0	28.0	32.0	36.0	NULL
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+3	3	6
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+3	3	6
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+3	3	6
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ["City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIII
+FROM pivot_table(['cursed_column_names'], [], [], ["City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+3	3	3	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ["City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIII
+FROM pivot_table(['cursed_column_names'], [], [], ["City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+3	3	3	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ["City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIII
+FROM pivot_table(['cursed_column_names'], [], [], ["City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+3	3	3	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+4	4	4
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+4	4	4
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query III
+FROM pivot_table(['cursed_column_names'], [], [], ['The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+4	4	4
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], [], [], ['Country Name', "City's Name", 'Approx. "Population"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+1	1	1	1	1	1	1	1	1	1	1	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+0.0	1.0	-1.0	1.0	-2.0	1.0	1005.0	1.0	1065.0	1.0	1158.0	1.0	8015.0	1.0	8175.0	1.0	8772.0	1.0	564.0	1.0	608.0	1.0	738.0	1.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+0.0	1.0	-1.0	1.0	-2.0	1.0	1005.0	1.0	1065.0	1.0	1158.0	1.0	8015.0	1.0	8175.0	1.0	8772.0	1.0	564.0	1.0	608.0	1.0	738.0	1.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIIIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+0.0	1.0	-1.0	1.0	-2.0	1.0	1005.0	1.0	1065.0	1.0	1158.0	1.0	8015.0	1.0	8175.0	1.0	8772.0	1.0	564.0	1.0	608.0	1.0	738.0	1.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+count("City's Name")	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0
+sum("Approx. ""Population""")	0.0	-1.0	-2.0	1005.0	1065.0	1158.0	8015.0	8175.0	8772.0	564.0	608.0	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+count("City's Name")	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0
+sum("Approx. ""Population""")	0.0	-1.0	-2.0	1005.0	1065.0	1158.0	8015.0	8175.0	8772.0	564.0	608.0	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], [], ['Country Name', "City's Name", 'The "''Year''"'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+count("City's Name")	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0	1.0
+sum("Approx. ""Population""")	0.0	-1.0	-2.0	1005.0	1065.0	1158.0	8015.0	8175.0	8772.0	564.0	608.0	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+2000	0.0	1	1005.0	1	8015.0	1	564.0	1
+2010	-1.0	1	1065.0	1	8175.0	1	608.0	1
+2020	-2.0	1	1158.0	1	8772.0	1	738.0	1
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+2000	0.0	1	1005.0	1	8015.0	1	564.0	1
+2010	-1.0	1	1065.0	1	8175.0	1	608.0	1
+2020	-2.0	1	1158.0	1	8772.0	1	738.0	1
+Grand Total	-3.0	3	3228.0	3	24962.0	3	1910.0	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+2000	0.0	1	1005.0	1	8015.0	1	564.0	1
+2010	-1.0	1	1065.0	1	8175.0	1	608.0	1
+2020	-2.0	1	1158.0	1	8772.0	1	738.0	1
+Grand Total	-3.0	3	3228.0	3	24962.0	3	1910.0	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+2000	count("City's Name")	1.0	1.0	1.0	1.0
+2000	sum("Approx. ""Population""")	0.0	1005.0	8015.0	564.0
+2010	count("City's Name")	1.0	1.0	1.0	1.0
+2010	sum("Approx. ""Population""")	-1.0	1065.0	8175.0	608.0
+2020	count("City's Name")	1.0	1.0	1.0	1.0
+2020	sum("Approx. ""Population""")	-2.0	1158.0	8772.0	738.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+2000	count("City's Name")	1.0	1.0	1.0	1.0
+2000	sum("Approx. ""Population""")	0.0	1005.0	8015.0	564.0
+2010	count("City's Name")	1.0	1.0	1.0	1.0
+2010	sum("Approx. ""Population""")	-1.0	1065.0	8175.0	608.0
+2020	count("City's Name")	1.0	1.0	1.0	1.0
+2020	sum("Approx. ""Population""")	-2.0	1158.0	8772.0	738.0
+Grand Total	count("City's Name")	3.0	3.0	3.0	3.0
+Grand Total	sum("Approx. ""Population""")	-3.0	3228.0	24962.0	1910.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ['The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+2000	count("City's Name")	1.0	1.0	1.0	1.0
+2000	sum("Approx. ""Population""")	0.0	1005.0	8015.0	564.0
+2010	count("City's Name")	1.0	1.0	1.0	1.0
+2010	sum("Approx. ""Population""")	-1.0	1065.0	8175.0	608.0
+2020	count("City's Name")	1.0	1.0	1.0	1.0
+2020	sum("Approx. ""Population""")	-2.0	1158.0	8772.0	738.0
+Grand Total	count("City's Name")	3.0	3.0	3.0	3.0
+Grand Total	sum("Approx. ""Population""")	-3.0	3228.0	24962.0	1910.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0
+ "Funky's town" 	Subtotal	-3.0	3	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0
+Amsterdam	Subtotal	NULL	0	3228.0	3	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1
+New York City	2010	NULL	0	NULL	0	8175.0	1
+New York City	2020	NULL	0	NULL	0	8772.0	1
+New York City	Subtotal	NULL	0	NULL	0	24962.0	3
+Seattle	2000	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	738.0	1
+Seattle	Subtotal	NULL	0	NULL	0	1910.0	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1
+New York City	2010	NULL	0	NULL	0	8175.0	1
+New York City	2020	NULL	0	NULL	0	8772.0	1
+Seattle	2000	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	738.0	1
+Grand Total	Grand Total	-3.0	3	3228.0	3	26872.0	6
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0
+ "Funky's town" 	Subtotal	-3.0	3	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0
+Amsterdam	Subtotal	NULL	0	3228.0	3	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1
+New York City	2010	NULL	0	NULL	0	8175.0	1
+New York City	2020	NULL	0	NULL	0	8772.0	1
+New York City	Subtotal	NULL	0	NULL	0	24962.0	3
+Seattle	2000	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	738.0	1
+Seattle	Subtotal	NULL	0	NULL	0	1910.0	3
+Grand Total	Grand Total	-3.0	3	3228.0	3	26872.0	6
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+ "Funky's town" 	2000	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL
+ "Funky's town" 	2010	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL
+ "Funky's town" 	2020	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL
+ "Funky's town" 	Subtotal	count("City's Name")	3.0	0.0	0.0
+ "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0	NULL	NULL
+Amsterdam	2000	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL
+Amsterdam	2010	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL
+Amsterdam	2020	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL
+Amsterdam	Subtotal	count("City's Name")	0.0	3.0	0.0
+Amsterdam	Subtotal	sum("Approx. ""Population""")	NULL	3228.0	NULL
+New York City	2000	count("City's Name")	0.0	0.0	1.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0
+New York City	2010	count("City's Name")	0.0	0.0	1.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0
+New York City	2020	count("City's Name")	0.0	0.0	1.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0
+New York City	Subtotal	count("City's Name")	0.0	0.0	3.0
+New York City	Subtotal	sum("Approx. ""Population""")	NULL	NULL	24962.0
+Seattle	2000	count("City's Name")	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	564.0
+Seattle	2010	count("City's Name")	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	608.0
+Seattle	2020	count("City's Name")	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	738.0
+Seattle	Subtotal	count("City's Name")	0.0	0.0	3.0
+Seattle	Subtotal	sum("Approx. ""Population""")	NULL	NULL	1910.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+ "Funky's town" 	2000	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL
+ "Funky's town" 	2010	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL
+ "Funky's town" 	2020	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL
+Amsterdam	2000	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL
+Amsterdam	2010	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL
+Amsterdam	2020	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL
+New York City	2000	count("City's Name")	0.0	0.0	1.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0
+New York City	2010	count("City's Name")	0.0	0.0	1.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0
+New York City	2020	count("City's Name")	0.0	0.0	1.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0
+Seattle	2000	count("City's Name")	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	564.0
+Seattle	2010	count("City's Name")	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	608.0
+Seattle	2020	count("City's Name")	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	738.0
+Grand Total	Grand Total	count("City's Name")	3.0	3.0	6.0
+Grand Total	Grand Total	sum("Approx. ""Population""")	-3.0	3228.0	26872.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name'], ['"Country Name" != ''blah'''])
+)
+
+query IIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("City''s Name")'], ["City's Name", 'The "''Year''"'], ['Country Name'], ['"Country Name" != ''blah'''], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+ "Funky's town" 	2000	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL
+ "Funky's town" 	2010	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL
+ "Funky's town" 	2020	count("City's Name")	1.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL
+ "Funky's town" 	Subtotal	count("City's Name")	3.0	0.0	0.0
+ "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0	NULL	NULL
+Amsterdam	2000	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL
+Amsterdam	2010	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL
+Amsterdam	2020	count("City's Name")	0.0	1.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL
+Amsterdam	Subtotal	count("City's Name")	0.0	3.0	0.0
+Amsterdam	Subtotal	sum("Approx. ""Population""")	NULL	3228.0	NULL
+New York City	2000	count("City's Name")	0.0	0.0	1.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0
+New York City	2010	count("City's Name")	0.0	0.0	1.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0
+New York City	2020	count("City's Name")	0.0	0.0	1.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0
+New York City	Subtotal	count("City's Name")	0.0	0.0	3.0
+New York City	Subtotal	sum("Approx. ""Population""")	NULL	NULL	24962.0
+Seattle	2000	count("City's Name")	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	564.0
+Seattle	2010	count("City's Name")	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	608.0
+Seattle	2020	count("City's Name")	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	738.0
+Seattle	Subtotal	count("City's Name")	0.0	0.0	3.0
+Seattle	Subtotal	sum("Approx. ""Population""")	NULL	NULL	1910.0
+Grand Total	Grand Total	count("City's Name")	3.0	3.0	6.0
+Grand Total	Grand Total	sum("Approx. ""Population""")	-3.0	3228.0	26872.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='columns', subtotals:=1, grand_totals:=0);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	Subtotal	-3.0	3	NULL	0	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0	NULL	0
+Amsterdam	Subtotal	NULL	0	3228.0	3	NULL	0	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1	NULL	0
+New York City	2010	NULL	0	NULL	0	8175.0	1	NULL	0
+New York City	2020	NULL	0	NULL	0	8772.0	1	NULL	0
+New York City	Subtotal	NULL	0	NULL	0	24962.0	3	NULL	0
+Seattle	2000	NULL	0	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	NULL	0	738.0	1
+Seattle	Subtotal	NULL	0	NULL	0	NULL	0	1910.0	3
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='columns', subtotals:=0, grand_totals:=1);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1	NULL	0
+New York City	2010	NULL	0	NULL	0	8175.0	1	NULL	0
+New York City	2020	NULL	0	NULL	0	8772.0	1	NULL	0
+Seattle	2000	NULL	0	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	NULL	0	738.0	1
+Grand Total	Grand Total	NULL	0	NULL	0	NULL	0	NULL	0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='columns', subtotals:=1, grand_totals:=1);
+----
+ "Funky's town" 	2000	0.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2010	-1.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	2020	-2.0	1	NULL	0	NULL	0	NULL	0
+ "Funky's town" 	Subtotal	-3.0	3	NULL	0	NULL	0	NULL	0
+Amsterdam	2000	NULL	0	1005.0	1	NULL	0	NULL	0
+Amsterdam	2010	NULL	0	1065.0	1	NULL	0	NULL	0
+Amsterdam	2020	NULL	0	1158.0	1	NULL	0	NULL	0
+Amsterdam	Subtotal	NULL	0	3228.0	3	NULL	0	NULL	0
+New York City	2000	NULL	0	NULL	0	8015.0	1	NULL	0
+New York City	2010	NULL	0	NULL	0	8175.0	1	NULL	0
+New York City	2020	NULL	0	NULL	0	8772.0	1	NULL	0
+New York City	Subtotal	NULL	0	NULL	0	24962.0	3	NULL	0
+Seattle	2000	NULL	0	NULL	0	NULL	0	564.0	1
+Seattle	2010	NULL	0	NULL	0	NULL	0	608.0	1
+Seattle	2020	NULL	0	NULL	0	NULL	0	738.0	1
+Seattle	Subtotal	NULL	0	NULL	0	NULL	0	1910.0	3
+Grand Total	Grand Total	NULL	0	NULL	0	NULL	0	NULL	0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='rows', subtotals:=1, grand_totals:=0);
+----
+ "Funky's town" 	2000	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL	NULL
+ "Funky's town" 	2010	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL	NULL
+ "Funky's town" 	2020	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL	NULL
+ "Funky's town" 	Subtotal	count("Approx. ""Population""")	3.0	0.0	0.0	0.0
+ "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0	NULL	NULL	NULL
+Amsterdam	2000	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL	NULL
+Amsterdam	2010	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL	NULL
+Amsterdam	2020	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL	NULL
+Amsterdam	Subtotal	count("Approx. ""Population""")	0.0	3.0	0.0	0.0
+Amsterdam	Subtotal	sum("Approx. ""Population""")	NULL	3228.0	NULL	NULL
+New York City	2000	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0	NULL
+New York City	2010	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0	NULL
+New York City	2020	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0	NULL
+New York City	Subtotal	count("Approx. ""Population""")	0.0	0.0	3.0	0.0
+New York City	Subtotal	sum("Approx. ""Population""")	NULL	NULL	24962.0	NULL
+Seattle	2000	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	NULL	564.0
+Seattle	2010	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	NULL	608.0
+Seattle	2020	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	NULL	738.0
+Seattle	Subtotal	count("Approx. ""Population""")	0.0	0.0	0.0	3.0
+Seattle	Subtotal	sum("Approx. ""Population""")	NULL	NULL	NULL	1910.0
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='rows', subtotals:=0, grand_totals:=1);
+----
+ "Funky's town" 	2000	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL	NULL
+ "Funky's town" 	2010	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL	NULL
+ "Funky's town" 	2020	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL	NULL
+Amsterdam	2000	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL	NULL
+Amsterdam	2010	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL	NULL
+Amsterdam	2020	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL	NULL
+New York City	2000	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0	NULL
+New York City	2010	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0	NULL
+New York City	2020	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0	NULL
+Seattle	2000	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	NULL	564.0
+Seattle	2010	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	NULL	608.0
+Seattle	2020	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	NULL	738.0
+Grand Total	Grand Total	count("Approx. ""Population""")	0.0	0.0	0.0	0.0
+Grand Total	Grand Total	sum("Approx. ""Population""")	NULL	NULL	NULL	NULL
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['cursed_column_names'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''])
+)
+
+query IIIIIII
+FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'count("Approx. ""Population""")'], ["City's Name", 'The "''Year''"'], ['Country Name', "City's Name"], ['"Country Name" != ''blah''', '"Country Name" != ''blah2'''], values_axis:='rows', subtotals:=1, grand_totals:=1);
+----
+ "Funky's town" 	2000	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2000	sum("Approx. ""Population""")	0.0	NULL	NULL	NULL
+ "Funky's town" 	2010	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0	NULL	NULL	NULL
+ "Funky's town" 	2020	count("Approx. ""Population""")	1.0	0.0	0.0	0.0
+ "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0	NULL	NULL	NULL
+ "Funky's town" 	Subtotal	count("Approx. ""Population""")	3.0	0.0	0.0	0.0
+ "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0	NULL	NULL	NULL
+Amsterdam	2000	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2000	sum("Approx. ""Population""")	NULL	1005.0	NULL	NULL
+Amsterdam	2010	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2010	sum("Approx. ""Population""")	NULL	1065.0	NULL	NULL
+Amsterdam	2020	count("Approx. ""Population""")	0.0	1.0	0.0	0.0
+Amsterdam	2020	sum("Approx. ""Population""")	NULL	1158.0	NULL	NULL
+Amsterdam	Subtotal	count("Approx. ""Population""")	0.0	3.0	0.0	0.0
+Amsterdam	Subtotal	sum("Approx. ""Population""")	NULL	3228.0	NULL	NULL
+New York City	2000	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2000	sum("Approx. ""Population""")	NULL	NULL	8015.0	NULL
+New York City	2010	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2010	sum("Approx. ""Population""")	NULL	NULL	8175.0	NULL
+New York City	2020	count("Approx. ""Population""")	0.0	0.0	1.0	0.0
+New York City	2020	sum("Approx. ""Population""")	NULL	NULL	8772.0	NULL
+New York City	Subtotal	count("Approx. ""Population""")	0.0	0.0	3.0	0.0
+New York City	Subtotal	sum("Approx. ""Population""")	NULL	NULL	24962.0	NULL
+Seattle	2000	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2000	sum("Approx. ""Population""")	NULL	NULL	NULL	564.0
+Seattle	2010	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2010	sum("Approx. ""Population""")	NULL	NULL	NULL	608.0
+Seattle	2020	count("Approx. ""Population""")	0.0	0.0	0.0	1.0
+Seattle	2020	sum("Approx. ""Population""")	NULL	NULL	NULL	738.0
+Seattle	Subtotal	count("Approx. ""Population""")	0.0	0.0	0.0	3.0
+Seattle	Subtotal	sum("Approx. ""Population""")	NULL	NULL	NULL	1910.0
+Grand Total	Grand Total	count("Approx. ""Population""")	0.0	0.0	0.0	0.0
+Grand Total	Grand Total	sum("Approx. ""Population""")	NULL	NULL	NULL	NULL
+
+
