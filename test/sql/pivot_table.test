@@ -80,7 +80,7 @@ FROM pivot_table(['zzzzz'],[], ['col3'], [], []);
 ----
 Catalog Error: Table with name zzzzz does not exist!
 
-# Validate that the most complex query will run across all combinations of values_axis, subtotals, and grand_totals
+# Validate that the most complex non-columns query will run across all combinations of values_axis, subtotals, and grand_totals
 foreach values_axis rows columns
 
 loop subtotals 0 1
