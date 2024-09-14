@@ -57,7 +57,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
     -- in order to enable subtotals and/or grand totals.
     -- This will be used to hardcode all values within specific columns into a single string
     -- so that when an aggregation is applied, it aggregates across the subtotal or grand_total level of granularity
-    -- Output is in the format: ['zzzSubtotal' as "subcat", 'zzzGrand Total' as "subcat", 'zzzGrand Total' as "category"]
+    -- An example output would be: ['zzzSubtotal' as "subcat", 'zzzGrand Total' as "subcat", 'zzzGrand Total' as "category"]
     -- The zzz's are used to force the subtotals and grand totals to be placed at the bottom of the raw data when sorting
     [
         CASE WHEN i = length(rows) - 1 THEN 
@@ -226,13 +226,21 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
         END
     )"},
     {DEFAULT_SCHEMA, "columns_values_axis_rows", {"table_names", "values", "rows", "columns", "filters", nullptr}, {{"values_axis", "'rows'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        -- If columns are being pivoted outward (the columns parameter is in use), and the values_axis is rows,
+        -- use one PIVOT statement per value and stack them using UNION ALL BY NAME.
+        -- The stack of PIVOTs is wrapped in a CTE so that subtotal/grand_total indicators can be renamed to friendly names 
+        -- (without zzz) after having been sorted correctly.
         'WITH raw_pivot AS ( '||
             nq_concat(
+                -- For each value, use a PIVOT statement, then stack each value together with UNION ALL BY NAME
                 list_transform(values, (i) -> 
                     '
                     FROM (
                         PIVOT (
                             '||
+                            -- If using subtotals or grand_totals, add in extra copies of the raw data,
+                            -- but with some or all column values replaced with static strings (Ex: zzzSubtotal)
+                            -- so that the aggregations are at the subtotal or grand_total level instead of at the original level of granularity.
                             CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
                                 nq_concat(
                                     ['FROM query_table(['||dq_concat(table_names, ', ')||']) 
@@ -261,8 +269,17 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                                 '|| coalesce('WHERE 1=1 AND ' || nq_concat(filters, ' AND '), '')
                             END ||'
                         )
+                        -- COLUMNS
+                        -- When pivoting, do not use all combinations of values in the columns parameter,
+                        -- only use the combinations that actually exist in the data. 
+                        -- This is achieved by only pivoting ON one expression (that has all columns concatenated together)
                         ON '||dq_concat(columns, ' || ''_'' || ')||' IN columns_parameter_enum
+                        
+                        -- VALUES
+                        -- Each PIVOT will use a single value metric
                         USING '|| nq(i) ||'
+
+                        -- ROWS
                         GROUP BY dummy_column' ||coalesce(', '||dq_concat(rows, ', '),'')||', value_names 
                     ) 
                     ' 
@@ -299,6 +316,8 @@ static const DefaultTableMacro dynamic_sql_examples_table_macros[] = {
         -- we need to already know the names of the columns that are being pivoted out. 
         -- This function is used to create an enum (in client code that uses this library)
         -- that will contain all of those column names.
+        -- Note that this is safe to call with an empty columns list, so calling code can 
+        -- always create the ENUM, even if it is not going to be used.
         FROM query(
             '
         FROM query_table(['||dq_concat(table_names, ', ')||']) 
