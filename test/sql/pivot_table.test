@@ -1818,6 +1818,26 @@ Grand Total	Grand Total	Grand Total	max("Approx. ""Population""")	8772.0
 
 # Columns tests
 
+# If I have no columns parameter, then I want to make sure that 
+# creating the ENUM does not error out (so that client code can just always call the enum, 
+# even when it will not be used)
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table'], [], [])
+)
+
+statement ok
+DROP TYPE IF EXISTS columns_parameter_enum
+
+statement ok
+CREATE TYPE columns_parameter_enum AS ENUM (
+    FROM build_my_enum(['my_table', 'my_table_with_nulls'], [], [])
+)
+
 statement ok
 DROP TYPE IF EXISTS columns_parameter_enum
 
