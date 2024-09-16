@@ -386,7 +386,7 @@ static void LoadInternal(DatabaseInstance &instance) {
                                                 LogicalType::VARCHAR, PivotTableOpenSSLVersionScalarFun);
     ExtensionUtil::RegisterFunction(instance, pivot_table_openssl_version_scalar_function);
 
-    // Macros
+    // Scalar Macros
 	for (idx_t index = 0; dynamic_sql_examples_macros[index].name != nullptr; index++) {
 		auto info = DefaultFunctionGenerator::CreateInternalMacroInfo(dynamic_sql_examples_macros[index]);
 		ExtensionUtil::RegisterFunction(instance, *info);
