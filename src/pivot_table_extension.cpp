@@ -20,7 +20,7 @@ namespace duckdb {
 // To add a new scalar SQL macro, add a new macro to this array!
 // Copy and paste the top item in the array into the 
 // second-to-last position and make some modifications. 
-// (essentially, leave the last entry in the array as {nullptr, nullptr, {nullptr}, nullptr})
+// (essentially, leave the last entry in the array as {nullptr, nullptr, {nullptr}, {{nullptr, nullptr}}, nullptr} )
 
 // Keep the DEFAULT_SCHEMA (no change needed)
 // Replace "times_two" with a name for your macro
