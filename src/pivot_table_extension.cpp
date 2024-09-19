@@ -218,7 +218,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
 
             -- ROWS
             GROUP BY dummy_column'||coalesce(', '||dq_concat(rows, ', '),'') || ' 
-            ORDER BY ALL NULLS FIRST 
+            ORDER BY ALL NULLS FIRST LIMIT 10000000000
         ) FROM raw_pivot 
         '|| CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
             replace_zzz(rows, ['dummy_column'])
