@@ -286,7 +286,7 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                 ),
                 ' UNION ALL BY NAME '
             ) || '
-        ), ordered_pivot AS (FROM raw_pivot ORDER BY ALL NULLS FIRST)
+        ), ordered_pivot AS (FROM raw_pivot ORDER BY ALL NULLS FIRST LIMIT 10000000000)
         FROM ordered_pivot 
         '|| CASE WHEN (subtotals OR grand_totals) AND length(rows) > 0 THEN 
             replace_zzz(rows, ['dummy_column', 'value_names'])
