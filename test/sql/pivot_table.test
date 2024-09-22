@@ -1210,32 +1210,32 @@ sum("The ""'Year'""")	24120.0
 query IIIII
 FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'max("Approx. ""Population""")'], ['Country Name', "City's Name", 'The "''Year''"'], [], [], values_axis:='rows', subtotals:=0, grand_totals:=1)
 ----
-Across the "'world'"	 "Funky's town" 	2000	sum("Approx. ""Population""")	0.0
 Across the "'world'"	 "Funky's town" 	2000	max("Approx. ""Population""")	0.0
-Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
+Across the "'world'"	 "Funky's town" 	2000	sum("Approx. ""Population""")	0.0
 Across the "'world'"	 "Funky's town" 	2010	max("Approx. ""Population""")	-1.0
-Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
+Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2020	max("Approx. ""Population""")	-2.0
-NL	Amsterdam	2000	sum("Approx. ""Population""")	1005.0
+Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
 NL	Amsterdam	2000	max("Approx. ""Population""")	1005.0
-NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
+NL	Amsterdam	2000	sum("Approx. ""Population""")	1005.0
 NL	Amsterdam	2010	max("Approx. ""Population""")	1065.0
-NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
+NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
 NL	Amsterdam	2020	max("Approx. ""Population""")	1158.0
-US	New York City	2000	sum("Approx. ""Population""")	8015.0
+NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
 US	New York City	2000	max("Approx. ""Population""")	8015.0
-US	New York City	2010	sum("Approx. ""Population""")	8175.0
+US	New York City	2000	sum("Approx. ""Population""")	8015.0
 US	New York City	2010	max("Approx. ""Population""")	8175.0
-US	New York City	2020	sum("Approx. ""Population""")	8772.0
+US	New York City	2010	sum("Approx. ""Population""")	8175.0
 US	New York City	2020	max("Approx. ""Population""")	8772.0
-US	Seattle	2000	sum("Approx. ""Population""")	564.0
+US	New York City	2020	sum("Approx. ""Population""")	8772.0
 US	Seattle	2000	max("Approx. ""Population""")	564.0
-US	Seattle	2010	sum("Approx. ""Population""")	608.0
+US	Seattle	2000	sum("Approx. ""Population""")	564.0
 US	Seattle	2010	max("Approx. ""Population""")	608.0
-US	Seattle	2020	sum("Approx. ""Population""")	738.0
+US	Seattle	2010	sum("Approx. ""Population""")	608.0
 US	Seattle	2020	max("Approx. ""Population""")	738.0
-Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	30097.0
+US	Seattle	2020	sum("Approx. ""Population""")	738.0
 Grand Total	Grand Total	Grand Total	max("Approx. ""Population""")	8772.0
+Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	30097.0
 
 query III
 FROM pivot_table(['cursed_column_names'], [], ['Country Name', "City's Name", 'The "''Year''"'], [], ['"The ""''Year''""" >= 2010', '"The ""''Year''""" <= 20100'], values_axis:='rows', subtotals:=0, grand_totals:=1)
@@ -1253,24 +1253,24 @@ Grand Total	Grand Total	Grand Total
 query IIIII
 FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'max("Approx. ""Population""")'], ['Country Name', "City's Name", 'The "''Year''"'], [], ['"The ""''Year''""" >= 2010', '"The ""''Year''""" <= 20100'], values_axis:='rows', subtotals:=0, grand_totals:=1)
 ----
-Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2010	max("Approx. ""Population""")	-1.0
-Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
+Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2020	max("Approx. ""Population""")	-2.0
-NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
+Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
 NL	Amsterdam	2010	max("Approx. ""Population""")	1065.0
-NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
+NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
 NL	Amsterdam	2020	max("Approx. ""Population""")	1158.0
-US	New York City	2010	sum("Approx. ""Population""")	8175.0
+NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
 US	New York City	2010	max("Approx. ""Population""")	8175.0
-US	New York City	2020	sum("Approx. ""Population""")	8772.0
+US	New York City	2010	sum("Approx. ""Population""")	8175.0
 US	New York City	2020	max("Approx. ""Population""")	8772.0
-US	Seattle	2010	sum("Approx. ""Population""")	608.0
+US	New York City	2020	sum("Approx. ""Population""")	8772.0
 US	Seattle	2010	max("Approx. ""Population""")	608.0
-US	Seattle	2020	sum("Approx. ""Population""")	738.0
+US	Seattle	2010	sum("Approx. ""Population""")	608.0
 US	Seattle	2020	max("Approx. ""Population""")	738.0
-Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	20513.0
+US	Seattle	2020	sum("Approx. ""Population""")	738.0
 Grand Total	Grand Total	Grand Total	max("Approx. ""Population""")	8772.0
+Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	20513.0
 
 query I
 FROM pivot_table(['my_table_with_nulls'], [], ['col3'], [], [], values_axis:='rows', subtotals:=1, grand_totals:=0)
@@ -1441,44 +1441,44 @@ sum("The ""'Year'""")	24120.0
 query IIIII
 FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'max("Approx. ""Population""")'], ['Country Name', "City's Name", 'The "''Year''"'], [], [], values_axis:='rows', subtotals:=1, grand_totals:=0)
 ----
-Across the "'world'"	 "Funky's town" 	2000	sum("Approx. ""Population""")	0.0
 Across the "'world'"	 "Funky's town" 	2000	max("Approx. ""Population""")	0.0
-Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
+Across the "'world'"	 "Funky's town" 	2000	sum("Approx. ""Population""")	0.0
 Across the "'world'"	 "Funky's town" 	2010	max("Approx. ""Population""")	-1.0
-Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
+Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2020	max("Approx. ""Population""")	-2.0
-Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
 Across the "'world'"	 "Funky's town" 	Subtotal	max("Approx. ""Population""")	0.0
-Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
 Across the "'world'"	Subtotal	Subtotal	max("Approx. ""Population""")	0.0
-NL	Amsterdam	2000	sum("Approx. ""Population""")	1005.0
+Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
 NL	Amsterdam	2000	max("Approx. ""Population""")	1005.0
-NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
+NL	Amsterdam	2000	sum("Approx. ""Population""")	1005.0
 NL	Amsterdam	2010	max("Approx. ""Population""")	1065.0
-NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
+NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
 NL	Amsterdam	2020	max("Approx. ""Population""")	1158.0
-NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	3228.0
+NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
 NL	Amsterdam	Subtotal	max("Approx. ""Population""")	1158.0
-NL	Subtotal	Subtotal	sum("Approx. ""Population""")	3228.0
+NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	3228.0
 NL	Subtotal	Subtotal	max("Approx. ""Population""")	1158.0
-US	New York City	2000	sum("Approx. ""Population""")	8015.0
+NL	Subtotal	Subtotal	sum("Approx. ""Population""")	3228.0
 US	New York City	2000	max("Approx. ""Population""")	8015.0
-US	New York City	2010	sum("Approx. ""Population""")	8175.0
+US	New York City	2000	sum("Approx. ""Population""")	8015.0
 US	New York City	2010	max("Approx. ""Population""")	8175.0
-US	New York City	2020	sum("Approx. ""Population""")	8772.0
+US	New York City	2010	sum("Approx. ""Population""")	8175.0
 US	New York City	2020	max("Approx. ""Population""")	8772.0
-US	New York City	Subtotal	sum("Approx. ""Population""")	24962.0
+US	New York City	2020	sum("Approx. ""Population""")	8772.0
 US	New York City	Subtotal	max("Approx. ""Population""")	8772.0
-US	Seattle	2000	sum("Approx. ""Population""")	564.0
+US	New York City	Subtotal	sum("Approx. ""Population""")	24962.0
 US	Seattle	2000	max("Approx. ""Population""")	564.0
-US	Seattle	2010	sum("Approx. ""Population""")	608.0
+US	Seattle	2000	sum("Approx. ""Population""")	564.0
 US	Seattle	2010	max("Approx. ""Population""")	608.0
-US	Seattle	2020	sum("Approx. ""Population""")	738.0
+US	Seattle	2010	sum("Approx. ""Population""")	608.0
 US	Seattle	2020	max("Approx. ""Population""")	738.0
-US	Seattle	Subtotal	sum("Approx. ""Population""")	1910.0
+US	Seattle	2020	sum("Approx. ""Population""")	738.0
 US	Seattle	Subtotal	max("Approx. ""Population""")	738.0
-US	Subtotal	Subtotal	sum("Approx. ""Population""")	26872.0
+US	Seattle	Subtotal	sum("Approx. ""Population""")	1910.0
 US	Subtotal	Subtotal	max("Approx. ""Population""")	8772.0
+US	Subtotal	Subtotal	sum("Approx. ""Population""")	26872.0
 
 query III
 FROM pivot_table(['cursed_column_names'], [], ['Country Name', "City's Name", 'The "''Year''"'], [], ['"The ""''Year''""" >= 2010', '"The ""''Year''""" <= 20100'], values_axis:='rows', subtotals:=1, grand_totals:=0)
@@ -1502,36 +1502,36 @@ US	Subtotal	Subtotal
 query IIIII
 FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'max("Approx. ""Population""")'], ['Country Name', "City's Name", 'The "''Year''"'], [], ['"The ""''Year''""" >= 2010', '"The ""''Year''""" <= 20100'], values_axis:='rows', subtotals:=1, grand_totals:=0)
 ----
-Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2010	max("Approx. ""Population""")	-1.0
-Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
+Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2020	max("Approx. ""Population""")	-2.0
-Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
 Across the "'world'"	 "Funky's town" 	Subtotal	max("Approx. ""Population""")	-1.0
-Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
 Across the "'world'"	Subtotal	Subtotal	max("Approx. ""Population""")	-1.0
-NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
+Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
 NL	Amsterdam	2010	max("Approx. ""Population""")	1065.0
-NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
+NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
 NL	Amsterdam	2020	max("Approx. ""Population""")	1158.0
-NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	2223.0
+NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
 NL	Amsterdam	Subtotal	max("Approx. ""Population""")	1158.0
-NL	Subtotal	Subtotal	sum("Approx. ""Population""")	2223.0
+NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	2223.0
 NL	Subtotal	Subtotal	max("Approx. ""Population""")	1158.0
-US	New York City	2010	sum("Approx. ""Population""")	8175.0
+NL	Subtotal	Subtotal	sum("Approx. ""Population""")	2223.0
 US	New York City	2010	max("Approx. ""Population""")	8175.0
-US	New York City	2020	sum("Approx. ""Population""")	8772.0
+US	New York City	2010	sum("Approx. ""Population""")	8175.0
 US	New York City	2020	max("Approx. ""Population""")	8772.0
-US	New York City	Subtotal	sum("Approx. ""Population""")	16947.0
+US	New York City	2020	sum("Approx. ""Population""")	8772.0
 US	New York City	Subtotal	max("Approx. ""Population""")	8772.0
-US	Seattle	2010	sum("Approx. ""Population""")	608.0
+US	New York City	Subtotal	sum("Approx. ""Population""")	16947.0
 US	Seattle	2010	max("Approx. ""Population""")	608.0
-US	Seattle	2020	sum("Approx. ""Population""")	738.0
+US	Seattle	2010	sum("Approx. ""Population""")	608.0
 US	Seattle	2020	max("Approx. ""Population""")	738.0
-US	Seattle	Subtotal	sum("Approx. ""Population""")	1346.0
+US	Seattle	2020	sum("Approx. ""Population""")	738.0
 US	Seattle	Subtotal	max("Approx. ""Population""")	738.0
-US	Subtotal	Subtotal	sum("Approx. ""Population""")	18293.0
+US	Seattle	Subtotal	sum("Approx. ""Population""")	1346.0
 US	Subtotal	Subtotal	max("Approx. ""Population""")	8772.0
+US	Subtotal	Subtotal	sum("Approx. ""Population""")	18293.0
 
 query I
 FROM pivot_table(['my_table_with_nulls'], [], ['col3'], [], [], values_axis:='rows', subtotals:=1, grand_totals:=1)
@@ -1716,46 +1716,46 @@ sum("The ""'Year'""")	24120.0
 query IIIII
 FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'max("Approx. ""Population""")'], ['Country Name', "City's Name", 'The "''Year''"'], [], [], values_axis:='rows', subtotals:=1, grand_totals:=1)
 ----
-Across the "'world'"	 "Funky's town" 	2000	sum("Approx. ""Population""")	0.0
 Across the "'world'"	 "Funky's town" 	2000	max("Approx. ""Population""")	0.0
-Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
+Across the "'world'"	 "Funky's town" 	2000	sum("Approx. ""Population""")	0.0
 Across the "'world'"	 "Funky's town" 	2010	max("Approx. ""Population""")	-1.0
-Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
+Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2020	max("Approx. ""Population""")	-2.0
-Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
 Across the "'world'"	 "Funky's town" 	Subtotal	max("Approx. ""Population""")	0.0
-Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
 Across the "'world'"	Subtotal	Subtotal	max("Approx. ""Population""")	0.0
-NL	Amsterdam	2000	sum("Approx. ""Population""")	1005.0
+Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
 NL	Amsterdam	2000	max("Approx. ""Population""")	1005.0
-NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
+NL	Amsterdam	2000	sum("Approx. ""Population""")	1005.0
 NL	Amsterdam	2010	max("Approx. ""Population""")	1065.0
-NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
+NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
 NL	Amsterdam	2020	max("Approx. ""Population""")	1158.0
-NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	3228.0
+NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
 NL	Amsterdam	Subtotal	max("Approx. ""Population""")	1158.0
-NL	Subtotal	Subtotal	sum("Approx. ""Population""")	3228.0
+NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	3228.0
 NL	Subtotal	Subtotal	max("Approx. ""Population""")	1158.0
-US	New York City	2000	sum("Approx. ""Population""")	8015.0
+NL	Subtotal	Subtotal	sum("Approx. ""Population""")	3228.0
 US	New York City	2000	max("Approx. ""Population""")	8015.0
-US	New York City	2010	sum("Approx. ""Population""")	8175.0
+US	New York City	2000	sum("Approx. ""Population""")	8015.0
 US	New York City	2010	max("Approx. ""Population""")	8175.0
-US	New York City	2020	sum("Approx. ""Population""")	8772.0
+US	New York City	2010	sum("Approx. ""Population""")	8175.0
 US	New York City	2020	max("Approx. ""Population""")	8772.0
-US	New York City	Subtotal	sum("Approx. ""Population""")	24962.0
+US	New York City	2020	sum("Approx. ""Population""")	8772.0
 US	New York City	Subtotal	max("Approx. ""Population""")	8772.0
-US	Seattle	2000	sum("Approx. ""Population""")	564.0
+US	New York City	Subtotal	sum("Approx. ""Population""")	24962.0
 US	Seattle	2000	max("Approx. ""Population""")	564.0
-US	Seattle	2010	sum("Approx. ""Population""")	608.0
+US	Seattle	2000	sum("Approx. ""Population""")	564.0
 US	Seattle	2010	max("Approx. ""Population""")	608.0
-US	Seattle	2020	sum("Approx. ""Population""")	738.0
+US	Seattle	2010	sum("Approx. ""Population""")	608.0
 US	Seattle	2020	max("Approx. ""Population""")	738.0
-US	Seattle	Subtotal	sum("Approx. ""Population""")	1910.0
+US	Seattle	2020	sum("Approx. ""Population""")	738.0
 US	Seattle	Subtotal	max("Approx. ""Population""")	738.0
-US	Subtotal	Subtotal	sum("Approx. ""Population""")	26872.0
+US	Seattle	Subtotal	sum("Approx. ""Population""")	1910.0
 US	Subtotal	Subtotal	max("Approx. ""Population""")	8772.0
-Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	30097.0
+US	Subtotal	Subtotal	sum("Approx. ""Population""")	26872.0
 Grand Total	Grand Total	Grand Total	max("Approx. ""Population""")	8772.0
+Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	30097.0
 
 query III
 FROM pivot_table(['cursed_column_names'], [], ['Country Name', "City's Name", 'The "''Year''"'], [], ['"The ""''Year''""" >= 2010', '"The ""''Year''""" <= 20100'], values_axis:='rows', subtotals:=1, grand_totals:=1)
@@ -1780,38 +1780,38 @@ Grand Total	Grand Total	Grand Total
 query IIIII
 FROM pivot_table(['cursed_column_names'], ['sum("Approx. ""Population""")', 'max("Approx. ""Population""")'], ['Country Name', "City's Name", 'The "''Year''"'], [], ['"The ""''Year''""" >= 2010', '"The ""''Year''""" <= 20100'], values_axis:='rows', subtotals:=1, grand_totals:=1)
 ----
-Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2010	max("Approx. ""Population""")	-1.0
-Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
+Across the "'world'"	 "Funky's town" 	2010	sum("Approx. ""Population""")	-1.0
 Across the "'world'"	 "Funky's town" 	2020	max("Approx. ""Population""")	-2.0
-Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	2020	sum("Approx. ""Population""")	-2.0
 Across the "'world'"	 "Funky's town" 	Subtotal	max("Approx. ""Population""")	-1.0
-Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
+Across the "'world'"	 "Funky's town" 	Subtotal	sum("Approx. ""Population""")	-3.0
 Across the "'world'"	Subtotal	Subtotal	max("Approx. ""Population""")	-1.0
-NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
+Across the "'world'"	Subtotal	Subtotal	sum("Approx. ""Population""")	-3.0
 NL	Amsterdam	2010	max("Approx. ""Population""")	1065.0
-NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
+NL	Amsterdam	2010	sum("Approx. ""Population""")	1065.0
 NL	Amsterdam	2020	max("Approx. ""Population""")	1158.0
-NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	2223.0
+NL	Amsterdam	2020	sum("Approx. ""Population""")	1158.0
 NL	Amsterdam	Subtotal	max("Approx. ""Population""")	1158.0
-NL	Subtotal	Subtotal	sum("Approx. ""Population""")	2223.0
+NL	Amsterdam	Subtotal	sum("Approx. ""Population""")	2223.0
 NL	Subtotal	Subtotal	max("Approx. ""Population""")	1158.0
-US	New York City	2010	sum("Approx. ""Population""")	8175.0
+NL	Subtotal	Subtotal	sum("Approx. ""Population""")	2223.0
 US	New York City	2010	max("Approx. ""Population""")	8175.0
-US	New York City	2020	sum("Approx. ""Population""")	8772.0
+US	New York City	2010	sum("Approx. ""Population""")	8175.0
 US	New York City	2020	max("Approx. ""Population""")	8772.0
-US	New York City	Subtotal	sum("Approx. ""Population""")	16947.0
+US	New York City	2020	sum("Approx. ""Population""")	8772.0
 US	New York City	Subtotal	max("Approx. ""Population""")	8772.0
-US	Seattle	2010	sum("Approx. ""Population""")	608.0
+US	New York City	Subtotal	sum("Approx. ""Population""")	16947.0
 US	Seattle	2010	max("Approx. ""Population""")	608.0
-US	Seattle	2020	sum("Approx. ""Population""")	738.0
+US	Seattle	2010	sum("Approx. ""Population""")	608.0
 US	Seattle	2020	max("Approx. ""Population""")	738.0
-US	Seattle	Subtotal	sum("Approx. ""Population""")	1346.0
+US	Seattle	2020	sum("Approx. ""Population""")	738.0
 US	Seattle	Subtotal	max("Approx. ""Population""")	738.0
-US	Subtotal	Subtotal	sum("Approx. ""Population""")	18293.0
+US	Seattle	Subtotal	sum("Approx. ""Population""")	1346.0
 US	Subtotal	Subtotal	max("Approx. ""Population""")	8772.0
-Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	20513.0
+US	Subtotal	Subtotal	sum("Approx. ""Population""")	18293.0
 Grand Total	Grand Total	Grand Total	max("Approx. ""Population""")	8772.0
+Grand Total	Grand Total	Grand Total	sum("Approx. ""Population""")	20513.0
 
 
 

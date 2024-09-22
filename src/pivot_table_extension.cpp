@@ -164,7 +164,9 @@ static DefaultMacro dynamic_sql_examples_macros[] = {
                     list_transform(
                         rows,
                         (i) -> 'GROUPING('||dq(i)||'), '||dq(i)),
-                    ', ') 
+                    ', ') || '
+                -- If we have values_axis of rows, we need to include the value_names column to maintain deterministic ordering
+                ' ||CASE WHEN values_axis = 'rows' AND length(values) > 0 THEN ', value_names ' ELSE ' ' END
             ELSE 'ALL NULLS FIRST ' 
             END 
     )"},
@@ -352,6 +354,18 @@ static const DefaultTableMacro dynamic_sql_examples_table_macros[] = {
             END
         )
         SELECT * EXCLUDE (dummy_column)
+    )"},
+    {DEFAULT_SCHEMA, "pivot_table_show_sql", {"table_names", "values", "rows", "columns", "filters", nullptr}, {{"values_axis", "'columns'"}, {"subtotals", "0"}, {"grand_totals", "0"}, {nullptr, nullptr}}, R"( 
+        -- Show the SQL that pivot_table would have executed. 
+        -- Useful for debugging or understanding the inner workings of pivot_table.
+        SELECT 
+                CASE WHEN length(columns) = 0 THEN 
+                    no_columns(table_names, values, rows, filters, values_axis := values_axis, subtotals := subtotals, grand_totals := grand_totals)
+                WHEN values_axis = 'columns' OR length(values) = 0 THEN 
+                    columns_values_axis_columns(table_names, values, rows, columns, filters, values_axis := 'columns', subtotals := subtotals, grand_totals := grand_totals)
+                WHEN values_axis = 'rows' THEN 
+                    columns_values_axis_rows(table_names, values, rows, columns, filters, values_axis := 'rows', subtotals := subtotals, grand_totals := grand_totals)
+                END AS sql_string
     )"},
 	{nullptr, nullptr, {nullptr}, {{nullptr, nullptr}}, nullptr}
 	};
